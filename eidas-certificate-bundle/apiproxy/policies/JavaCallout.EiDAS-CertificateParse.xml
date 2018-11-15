@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<JavaCallout async="false" continueOnError="false" enabled="true" name="JavaCallout.EiDAS-CertificateParse">
+    <Properties>
+        <Property name="pem-certificate">request.header.SSL_CLIENT_CERT</Property>
+        <Property name="certificate-info">flow.certinfo</Property>
+    </Properties>
+    <ClassName>com.exco.eidas.EiDASCertificateParserCallout</ClassName>
+    <ResourceURL>java://eidas-certificate-parser-1.0.0.jar</ResourceURL>
+</JavaCallout>

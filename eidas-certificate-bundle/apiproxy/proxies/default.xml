@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ProxyEndpoint name="default">
+    <Description/>
+    <FaultRules/>
+    <PreFlow name="PreFlow">
+        <Request>
+            <Step>
+                <Name>JavaCallout.EiDAS-CertificateParse</Name>
+            </Step>
+            <Step>
+                <Name>AssignMessage.JsonMessage</Name>
+            </Step>
+            <Step>
+                <Name>ExtractVariables.GetFingerprintSha256</Name>
+            </Step>
+        </Request>
+        <Response>
+            <Step>
+                <Name>AssignMessage.Log-Certificate-Info-JSON</Name>
+            </Step>
+        </Response>
+    </PreFlow>
+    <PostFlow name="PostFlow">
+        <Request/>
+        <Response/>
+    </PostFlow>
+    <Flows/>
+    <HTTPProxyConnection>
+        <BasePath>/eidas-parse-certificate</BasePath>
+        <Properties/>
+        <VirtualHost>default</VirtualHost>
+    </HTTPProxyConnection>
+    <RouteRule name="noroute"/>
+</ProxyEndpoint>

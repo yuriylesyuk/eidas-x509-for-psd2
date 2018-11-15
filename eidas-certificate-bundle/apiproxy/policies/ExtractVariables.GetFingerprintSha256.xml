@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ExtractVariables async="false" continueOnError="false" enabled="true" name="ExtractVariables.GetFingerprintSha256">
+    <Source>flow.certInfoMessage</Source>
+    <JSONPayload>
+        <Variable name="context.fingerprintSha256">
+            <JSONPath>$.certInfo.fingerprintSha256</JSONPath>
+        </Variable>
+    </JSONPayload>
+</ExtractVariables>
