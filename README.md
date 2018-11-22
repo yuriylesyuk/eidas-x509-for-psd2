@@ -2,6 +2,28 @@
 
 The proxy bundle is ready for deployment. You don't need to compile it in order to use it.
 
+## Quickstart: Building and deploying
+
+
+apigeetool is a Node.js module and you can install it using npm:
+
+```
+npm install -g apigeetool
+```
+
+To deploy, set up some environment variabls and exectute deploy.sh script.
+
+
+```
+export ORG=<name-of-edge-org>
+export ENV=<name-of-org's-env>
+export ORG_ADMIN_USERNAME=<your-username>
+export ORG_ADMIN_PASSWORD=<your-password>
+
+
+./deploy.sh
+```
+
 ## Configuration
 
 Configure the policy like this:
@@ -89,29 +111,7 @@ This example is not an official Google product, nor is it part of an official Go
 This material is copyright 2018, Google LLC.
 and is licensed under the Apache 2.0 license. See the [LICENSE](LICENSE) file.
 
-## Building and deploying
-
-
-apigeetool is a Node.js module and you can install it using npm:
-
-```
-npm install -g apigeetool
-```
-
-To deploy, set up some environment variabls and exectute deploy.sh script.
-
-
-```
-export ORG=<name-of-edge-org>
-export ENV=<name-of-org's-env>
-export ORG_ADMIN_USERNAME=<your-username>
-export ORG_ADMIN_PASSWORD=<your-password>
-
-
-./deploy.sh
-```
-
 ## Status
 
 This is a community supported project. There is no warranty for this code.
-If you have problems or questions, as on [commmunity.apigee.com](https://community.apigee.com).
+If you have problems or questions, ask on [commmunity.apigee.com](https://community.apigee.com).
