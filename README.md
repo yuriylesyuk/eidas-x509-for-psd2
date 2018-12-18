@@ -11,7 +11,7 @@ apigeetool is a Node.js module and you can install it using npm:
 npm install -g apigeetool
 ```
 
-To deploy, set up some environment variabls and exectute deploy.sh script.
+To deploy, set up the following environment variables and execute the deploy.sh script.
 
 
 ```
@@ -29,7 +29,7 @@ export ORG_ADMIN_PASSWORD=<your-password>
 Configure the policy like this:
 
 ```
-<JavaCallout async="false" continueOnError="false" enabled="true" name="JavaCallout.EiDAS-CertificateParse">
+<JavaCallout name="JavaCallout.EiDAS-CertificateParse">
     <Properties>
         <Property name="pem-certificate">request.header.SSL_CLIENT_CERT</Property>
         <Property name="certificate-info">flow.certinfo</Property>
@@ -46,7 +46,7 @@ Within the Properties, you can specify the input and output for the eiDAS callou
 | pem-certificate  | required | name of context variable that contains certificate in pem format |
 | certificate-info | required | name of the context variable that will contain certificate information |
 
-If the callout fails for some reason, such as misconfiguration, these variables get set:
+If the callout fails for some reason, such as misconfiguration, these variables will be set:
 
 | name                  | meaning |
 | --------------------- | ---------------------------------------------------------------------- |
