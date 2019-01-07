@@ -61,7 +61,7 @@ If the callout fails for some reason, such as misconfiguration, these variables 
 
 ## Examples
 
-See the attached [bundle](./bundle) for a working API Proxy.
+See the attached [bundle](./eidas-certificate-bundle) for a working API Proxy.
 To try out the following scenarios, deploy that proxy to any org and environment.
 
 ### Parsing a certificate
