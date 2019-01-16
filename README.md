@@ -95,8 +95,92 @@ $ curl -H 'SSL_CLIENT_CERT: -----BEGIN CERTIFICATE-----\nMIIECDCCAvCgAwIBAgIEb8K
 
 
 
+# eidaspsd cli utility
 
- 
+The /bin/eidaspsd utility supports collection of operations to facilitate management of eiDAS/PSD2 certificates. Due to the fact that eiDAS statements are qcExtentions in the ASN.1 format, it is not possible to see or manipulate its contents.
+
+Using the utility, you can now display salient fields of a certficiate and change/set up PSD2 fields.
+
+What's important for PSD2-related SDLC workflows, you can create invalid field values so that you can conduct negative tests.
+
+## Show contents of the certificate
+
+```
+java -jar iedaspsd.jar show --cert=../doc/certificates/gennedcert.pem
+{
+  "certInfo": {
+    "basicConstraints": "CA: true",
+    "subject": "OID.2.5.4.97\u003d12345987, L\u003dNuremberg, ST\u003dBayern, C\u003dGermany, OU\u003dou, O\u003dorg, CN\u003ddomainName",
+    "issuer": "EMAILADDRESS\u003dca@test.de, CN\u003dAuthority CA Domain Name, OU\u003dIT, O\u003dAuthority CA, L\u003dFrankfurt, ST\u003dHessen, C\u003dDE",
+    "validFrom": 1543573407000,
+    "expiryDate": 1543573407000,
+    "isValid": "\u003cTODO\u003e",
+    "publicKey": "RSA, 2048",
+    "serialNumber": 1875022970,
+    "sigAlgName": "SHA1withRSA",
+    "version": 3,
+    "fingerprintSha256": "cb6e5414fcd99fe84ea7aa6cbb4ddf1d2dd4b9835b4f39a6a4f996dd346741ad",
+    "fingerprintSha1": "d4a49b90e526c9c5ec926072aebba7d7344a4494",
+    "ncaName": "Auth",
+    "ncaId": "Germany",
+    "rolesOfPSP": "[\"PSP_AS\",\"PSP_PI\",\"PSP_AI\",\"PSP_IC\"]"
+  }
+}
+```
+
+## Edit psd2 fields and sign new certificate with a private key
+
+```
+java -jar iedaspsd.jar set --cert=../doc/certificates/gennedcert.pem --key=../doc/certificates/key.pem --passphrase=Welcome123 --roles=PSP_PI --ncaname=ncaname --ncaid=ncaid
+-----BEGIN CERTIFICATE-----
+MIID0DCCArigAwIBAgIEb8KUejANBgkqhkiG9w0BAQUFADCBlDELMAkGA1UEBhMC
+REUxDzANBgNVBAgMBkhlc3NlbjESMBAGA1UEBwwJRnJhbmtmdXJ0MRUwEwYDVQQK
+DAxBdXRob3JpdHkgQ0ExCzAJBgNVBAsMAklUMSEwHwYDVQQDDBhBdXRob3JpdHkg
+Q0EgRG9tYWluIE5hbWUxGTAXBgkqhkiG9w0BCQEWCmNhQHRlc3QuZGUwHhcNMTgx
+MTEzMDk0MjU4WhcNMTgxMTMwMTAyMzI3WjB6MRMwEQYDVQQDDApkb21haW5OYW1l
+MQwwCgYDVQQKDANvcmcxCzAJBgNVBAsMAm91MRAwDgYDVQQGEwdHZXJtYW55MQ8w
+DQYDVQQIDAZCYXllcm4xEjAQBgNVBAcMCU51cmVtYmVyZzERMA8GA1UEYQwIMTIz
+NDU5ODcwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCzezfS9BIdspq9
+wa4oxGo+aMxBVYOxLR4h/9X4hU/8fnxgq7BIrVKbgeckcjPcRhr+ULeJmkemQJnh
+wLqlmdAtcmbhU16dKnIAYV9YhIe3HEr1s7LUeKt2qEMyXXQvz9RGFOkceqDqGqSR
+GwBlRMOmPTvVsVYyzqhSh4SiLFWOO3U4ZZy47ymgSgVvRE+Vg8A3YWkS/605LU6p
+0IIA1PPg7ym3/8fZ6C8UTXuFIoXn+ukOGiEE9tGHqSr4IrlNtb3fMbRWW/pR109D
+uNLAqFByjYzR+unbWZ0qCgwVnddIcupGehmnEcNkx8hTLAbdYk4b16cy7RWxoSj0
+FahPt59zAgMBAAGjQzBBMD8GCCsGAQUFBwEDBDMwMTAvBgYEAIGYJwIwJTATMBEG
+BwQAgZgnAQIMBlBTUF9QSQwHbmNhbmFtZQwFbmNhaWQwDQYJKoZIhvcNAQEFBQAD
+ggEBAFpcDJXxFvkrGylb3a5e/e+oxG6xhe6zYNgkXBsBfuHCTvZEgTV2jckfEeU8
+YKr9qgmQcUpeoKsDpXSzZFGFcA1KQUUK2YkB3T7chb3l08EynQ6aCb9i2/5QhNgd
+U+2qzBD/I4he5c3oQJKjs51u0QZa+Bkv8dBmfdjhGCdq+u3VmLUkmSFa6uUZ2S3K
+c8qg86h9cWcfQH2H26yqlyDath3877/87KW2m3E+TVJQXVvVzo9WdPwZE/gZEOBb
+IOUvz4qFbf4wGJ5cfAtlOXvbElfSRk31Wg1MRQoIvaqPGiM45iF3pf7P66AnFE1k
+FyPdGiDSA/7uEXmrsNve4ity11k=
+-----END CERTIFICATE-----
+```
+
+## Verify edited values
+```
+ java -jar iedaspsd.jar show --cert=/tmp/cert.pem
+{
+  "certInfo": {
+    "basicConstraints": "CA: true",
+    "subject": "OID.2.5.4.97\u003d12345987, L\u003dNuremberg, ST\u003dBayern, C\u003dGermany, OU\u003dou, O\u003dorg, CN\u003ddomainName",
+    "issuer": "EMAILADDRESS\u003dca@test.de, CN\u003dAuthority CA Domain Name, OU\u003dIT, O\u003dAuthority CA, L\u003dFrankfurt, ST\u003dHessen, C\u003dDE",
+    "validFrom": 1543573407000,
+    "expiryDate": 1543573407000,
+    "isValid": "\u003cTODO\u003e",
+    "publicKey": "RSA, 2048",
+    "serialNumber": 1875022970,
+    "sigAlgName": "SHA1withRSA",
+    "version": 3,
+    "fingerprintSha256": "8345ed6b67056bb641e6ccac5a0579acdf80663de59f7b92f561b66bb6d8876b",
+    "fingerprintSha1": "cc1adb500568facbff32b475161936dc5becfc4b",
+    "ncaName": "ncaname",
+    "ncaId": "ncaid",
+    "rolesOfPSP": "[\"PSP_PI\"]"
+  }
+}
+```
+
 
 
 
