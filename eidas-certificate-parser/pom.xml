@@ -41,6 +41,12 @@
     	<version>1.56</version>
         <scope>provided</scope>
 	</dependency>
+	<dependency>
+    	<groupId>info.picocli</groupId>
+	    <artifactId>picocli</artifactId>
+    	<version>3.9.1</version>
+        <scope>provided</scope>
+	</dependency>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>

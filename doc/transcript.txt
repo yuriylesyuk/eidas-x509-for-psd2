@@ -1,0 +1,10 @@
+
+
+
+openssl genrsa -aes256 -out key.pem 2048
+
+
+
+passphrase: Welcome123
+
+

@@ -21,3 +21,5 @@ Icon
 
 **/*.class
 
+eidas-certificate-parser/jar-in-jar-loader.zip
+eidas-certificate-parser/iedaspsd-jar-gen.xml
