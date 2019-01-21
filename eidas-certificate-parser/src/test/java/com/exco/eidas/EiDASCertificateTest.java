@@ -6,6 +6,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.bouncycastle.asn1.ASN1ObjectIdentifier;
+import org.bouncycastle.asn1.x500.AttributeTypeAndValue;
+import org.bouncycastle.asn1.x500.RDN;
+import org.bouncycastle.asn1.x500.X500Name;
+import org.bouncycastle.asn1.x500.X500NameBuilder;
+import org.bouncycastle.asn1.x500.style.IETFUtils;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -78,10 +84,31 @@ public class EiDASCertificateTest {
 		
 	}
 	
-	@Test
-	public void addFullSetOfRoles() {
-
+	@Test 
+	public void cloneX500NameNoOrganizationIdentifier() {
 		
+		 String subjectDN = "C=US,O=NASA,SERIALNUMBER=13+CN=Dwight Eisenhower";
+		 String organizationIdentifier = "PSDES-BDE-3DFD21";
+		 		 
+		 X500Name subjectDnBefore = new X500Name( subjectDN );
+		 
+		 
+		 EiDASCertificate eidascert = new EiDASCertificate();
+		 
+		 X500Name subjectDnAfter = eidascert.replaceOrganizationIdentifier( subjectDnBefore, organizationIdentifier);
+		 
+		 String subjectDnStringAfter = subjectDnAfter.toString();
+		 
+		 
+		 assertEquals( subjectDnStringAfter, "C=US,O=NASA,SERIALNUMBER=13+CN=Dwight Eisenhower,2.5.4.97=PSDES-BDE-3DFD21" );
+
+	}
+	
+	
+	@Test
+	public void addFullSetOfRolesNoOrgId() {
+
+		String orgId = null;
 	    String ncaName = "Auth";
 	    String ncaId = "Germany";
 	    
@@ -91,7 +118,7 @@ public class EiDASCertificateTest {
 
 		EiDASCertificate eidascert = new EiDASCertificate();
 
-		String certpem = eidascert.addPsdAttibutes( c, k, p, ncaName, ncaId, roles );
+		String certpem = eidascert.addPsdAttibutes( c, k, p, orgId, ncaName, ncaId, roles );
 		
 	
 		assertEquals( certpem,
@@ -123,9 +150,9 @@ public class EiDASCertificateTest {
 
 
 	@Test
-	public void addSingleRole() {
+	public void addSingleRoleWithOrdId() {
 
-		
+	    String orgId = "PSDES-BDE-3DFD21";
 	    String ncaName = "CA";
 	    String ncaId = "Britain";
 	    
@@ -135,32 +162,32 @@ public class EiDASCertificateTest {
 
 		EiDASCertificate eidascert = new EiDASCertificate();
 
-		String certpem = eidascert.addPsdAttibutes( c, k, p, ncaName, ncaId, roles );
+		String certpem = eidascert.addPsdAttibutes( c, k, p, orgId, ncaName, ncaId, roles );
 		
 	
 		assertEquals( certpem,
 				"-----BEGIN CERTIFICATE-----\n" + 
-				"MIIDzTCCArWgAwIBAgIEb8KUejANBgkqhkiG9w0BAQUFADCBlDELMAkGA1UEBhMC\n" + 
+				"MIID1jCCAr6gAwIBAgIEb8KUejANBgkqhkiG9w0BAQUFADCBlDELMAkGA1UEBhMC\n" + 
 				"REUxDzANBgNVBAgMBkhlc3NlbjESMBAGA1UEBwwJRnJhbmtmdXJ0MRUwEwYDVQQK\n" + 
 				"DAxBdXRob3JpdHkgQ0ExCzAJBgNVBAsMAklUMSEwHwYDVQQDDBhBdXRob3JpdHkg\n" + 
 				"Q0EgRG9tYWluIE5hbWUxGTAXBgkqhkiG9w0BCQEWCmNhQHRlc3QuZGUwHhcNMTgx\n" + 
-				"MTEzMDk0MjU4WhcNMTgxMTMwMTAyMzI3WjB6MRMwEQYDVQQDDApkb21haW5OYW1l\n" + 
-				"MQwwCgYDVQQKDANvcmcxCzAJBgNVBAsMAm91MRAwDgYDVQQGEwdHZXJtYW55MQ8w\n" + 
-				"DQYDVQQIDAZCYXllcm4xEjAQBgNVBAcMCU51cmVtYmVyZzERMA8GA1UEYQwIMTIz\n" + 
-				"NDU5ODcwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCzezfS9BIdspq9\n" + 
-				"wa4oxGo+aMxBVYOxLR4h/9X4hU/8fnxgq7BIrVKbgeckcjPcRhr+ULeJmkemQJnh\n" + 
-				"wLqlmdAtcmbhU16dKnIAYV9YhIe3HEr1s7LUeKt2qEMyXXQvz9RGFOkceqDqGqSR\n" + 
-				"GwBlRMOmPTvVsVYyzqhSh4SiLFWOO3U4ZZy47ymgSgVvRE+Vg8A3YWkS/605LU6p\n" + 
-				"0IIA1PPg7ym3/8fZ6C8UTXuFIoXn+ukOGiEE9tGHqSr4IrlNtb3fMbRWW/pR109D\n" + 
-				"uNLAqFByjYzR+unbWZ0qCgwVnddIcupGehmnEcNkx8hTLAbdYk4b16cy7RWxoSj0\n" + 
-				"FahPt59zAgMBAAGjQDA+MDwGCCsGAQUFBwEDBDAwLjAsBgYEAIGYJwIwIjATMBEG\n" + 
-				"BwQAgZgnAQEMBlBTUF9BUwwCQ0EMB0JyaXRhaW4wDQYJKoZIhvcNAQEFBQADggEB\n" + 
-				"AJuljiAvngTDosAwUpmWOLkNYaY902LngNSStS2bOY1hyAMKIQvgtzlZPcrwpYu+\n" + 
-				"AOILLzQbKV6UBpl1FGAvN5rt1KywyXlUEuF86I+SEzscLgCuuf2Q6chZvx/oriXs\n" + 
-				"iSehmWccS/WBoiZogFPECGpBmOd+mhhRj0DaSpL26Za6D4D2lKjsPr2qWqJyJV7+\n" + 
-				"rBzR0gW6E7zm5f0LnwHiuDTe7Ax9Gq8dyjEobea3FYC4RM7/rUtW5sXuwMug0ni+\n" + 
-				"YZ/vR3ex78yHZdbR1RPj14+hHDCzTesCNFQpD4Os8mGf53PQpsYqI/ws5OBg9XbW\n" + 
-				"11VvBAKsS1zYAEtFxpoHY0Y=\n" + 
+				"MTEzMDk0MjU4WhcNMTgxMTMwMTAyMzI3WjCBgjETMBEGA1UEAwwKZG9tYWluTmFt\n" + 
+				"ZTEMMAoGA1UECgwDb3JnMQswCQYDVQQLDAJvdTEQMA4GA1UEBhMHR2VybWFueTEP\n" + 
+				"MA0GA1UECAwGQmF5ZXJuMRIwEAYDVQQHDAlOdXJlbWJlcmcxGTAXBgNVBGEMEFBT\n" + 
+				"REVTLUJERS0zREZEMjEwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCz\n" + 
+				"ezfS9BIdspq9wa4oxGo+aMxBVYOxLR4h/9X4hU/8fnxgq7BIrVKbgeckcjPcRhr+\n" + 
+				"ULeJmkemQJnhwLqlmdAtcmbhU16dKnIAYV9YhIe3HEr1s7LUeKt2qEMyXXQvz9RG\n" + 
+				"FOkceqDqGqSRGwBlRMOmPTvVsVYyzqhSh4SiLFWOO3U4ZZy47ymgSgVvRE+Vg8A3\n" + 
+				"YWkS/605LU6p0IIA1PPg7ym3/8fZ6C8UTXuFIoXn+ukOGiEE9tGHqSr4IrlNtb3f\n" + 
+				"MbRWW/pR109DuNLAqFByjYzR+unbWZ0qCgwVnddIcupGehmnEcNkx8hTLAbdYk4b\n" + 
+				"16cy7RWxoSj0FahPt59zAgMBAAGjQDA+MDwGCCsGAQUFBwEDBDAwLjAsBgYEAIGY\n" + 
+				"JwIwIjATMBEGBwQAgZgnAQEMBlBTUF9BUwwCQ0EMB0JyaXRhaW4wDQYJKoZIhvcN\n" + 
+				"AQEFBQADggEBABbJAOs7JqXQL4ovxSEwaB08prhq8x+9SAK5e4IF1Mn+CHfafCAS\n" + 
+				"ZttYMb2nDt9DSoUNWW5Mzn1DBkTA4LEZtIfM547SeyOjKNkiQTVSS83It58Ou0vc\n" + 
+				"nAXU7xTLKbbK+U5MuGetfsGdiNjCgzY32besNTEQ2JcOeVxs5wZF8+/bgf6d2xNl\n" + 
+				"smXRoqsavNnzolhmxNzackdOKVn1FmAMwdBxC/cH4DpNCdXFteCYRuxEs453sYZJ\n" + 
+				"BkaFceu0XrUTTW2+eqWWgkv8ZqOLyq8W22tdDCv0ndvAiAGhfKmDh4WJvIBIJAL5\n" + 
+				"x1IS754+1mJmR3KCMzpUo0PueEdhARFqrVs=\n" + 
 				"-----END CERTIFICATE-----\n" );
 	}
 }

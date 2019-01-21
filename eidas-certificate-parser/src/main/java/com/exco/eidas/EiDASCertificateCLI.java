@@ -47,10 +47,13 @@ import picocli.CommandLine.Option;
     @Option(names = "--key", required = true, description = "private key file in pem format")
     String keyFile;
 
-    @Option(names = "--ncaname", required = true, description = "name of the competent authority")
+    @Option(names = "--organizationidentifier", required = false, description = "organization identifier as per 5.2.1")
+    String orgId;
+
+    @Option(names = "--ncaname", required = false, description = "name of the competent authority")
     String ncaName;
 
-    @Option(names = "--ncaid", required = true, description = "competent authority abbreviated unique identifier")
+    @Option(names = "--ncaid", required = false, description = "competent authority abbreviated unique identifier")
     String ncaId;
 
     @Option(names = "--roles", required = true, split = ",", description = "eidas psd roles separated by ,: PSP_AS,PSP_PI,PSP_AI,PSP_IC")
@@ -88,7 +91,7 @@ import picocli.CommandLine.Option;
 	 
 		String key = new String(Files.readAllBytes(Paths.get( keyFile )));
 		 
-		String certpem = eidascert.addPsdAttibutes( cert, key, passphrase, ncaName, ncaId, roles );
+		String certpem = eidascert.addPsdAttibutes( cert, key, passphrase, orgId, ncaName, ncaId, roles );
 
       System.out.println(certpem);
       

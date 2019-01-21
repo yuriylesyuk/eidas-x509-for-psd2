@@ -97,7 +97,7 @@ $ curl -H 'SSL_CLIENT_CERT: -----BEGIN CERTIFICATE-----\nMIIECDCCAvCgAwIBAgIEb8K
 
 # eidaspsd cli utility
 
-The /bin/eidaspsd utility supports collection of operations to facilitate management of eiDAS/PSD2 certificates. Due to the fact that eiDAS statements are qcExtentions in the ASN.1 format, it is not possible to see or manipulate its contents.
+The /bin/eidaspsd utility supports collection of operations to facilitate management of eiDAS/PSD2 certificates. Due to the fact that eiDAS statements are qcExtentions in the ASN.1 format, it is not possible to see or manipulate its contents with most of the utilities, ie, openssl, cfssl, keytool, etc.
 
 Using the utility, you can now display salient fields of a certficiate and change/set up PSD2 fields.
 
@@ -181,9 +181,10 @@ FyPdGiDSA/7uEXmrsNve4ity11k=
 }
 ```
 
-
-
-
+## Set up/overwrite organizationIdentifier/2.5.4.97
+```
+java -jar iedaspsd.jar set --cert=../doc/certificates/gennedcert.pem --key=../doc/certificates/key.pem  --passphrase=Welcome123 --roles=PSP_PI --ncaname=ncaname --ncaid=ncaid --organizationidentifier=PSDES-BDE-3DFD21
+```
 
 
 ## Disclaimer

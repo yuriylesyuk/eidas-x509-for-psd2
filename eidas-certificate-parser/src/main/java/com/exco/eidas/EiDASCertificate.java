@@ -17,9 +17,13 @@ import java.security.interfaces.RSAPublicKey;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+
+import javax.security.auth.x500.X500Principal;
 
 import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.ASN1EncodableVector;
@@ -29,6 +33,11 @@ import org.bouncycastle.asn1.ASN1OctetString;
 import org.bouncycastle.asn1.ASN1Sequence;
 import org.bouncycastle.asn1.DERSequence;
 import org.bouncycastle.asn1.DERUTF8String;
+import org.bouncycastle.asn1.x500.AttributeTypeAndValue;
+import org.bouncycastle.asn1.x500.RDN;
+import org.bouncycastle.asn1.x500.X500Name;
+import org.bouncycastle.asn1.x500.X500NameBuilder;
+import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.asn1.x509.Extension;
 import org.bouncycastle.asn1.x509.qualified.QCStatement;
 import org.bouncycastle.cert.CertIOException;
@@ -70,12 +79,25 @@ public class EiDASCertificate {
     public static final ASN1ObjectIdentifier oid_etsi_psd2_role_psp_ai = oid_etsi_psd2_roles.branch("3");
     public static final ASN1ObjectIdentifier oid_etsi_psd2_role_psp_ic = oid_etsi_psd2_roles.branch("4");
     
+    
+    
+    // not in BC 1.56 which Edge uses
+    public static final ASN1ObjectIdentifier ORGANIZATION_IDENTIFIER =  new ASN1ObjectIdentifier("2.5.4.97").intern();
+    
+    private static final Hashtable<ASN1ObjectIdentifier,String> OverrideSymbols = new Hashtable();
+    static
+    {
+    	OverrideSymbols.put( ORGANIZATION_IDENTIFIER, "organizationIdentifier");
+    }
+
+
     public static final Map<String,ASN1ObjectIdentifier> rolesOids = new LinkedHashMap<String,ASN1ObjectIdentifier>() {{
         put( "PSP_AS", oid_etsi_psd2_role_psp_as );
         put( "PSP_PI", oid_etsi_psd2_role_psp_pi );
         put( "PSP_AI", oid_etsi_psd2_role_psp_ai );
         put( "PSP_IC", oid_etsi_psd2_role_psp_ic );
     }};
+    
     
 	public X509Certificate getCertificate(String pemCertificate) {
 		
@@ -120,7 +142,82 @@ public class EiDASCertificate {
 		return pk.getAlgorithm() + ", " + (length != -1 ? String.valueOf(length) : "Unknown key class");
 	}
 
+	private List<String> getSubjectDNAsList(X500Principal subject ) {
+		
+		X500Name name = new X500Name( subject.getName(X500Principal.RFC1779) );
+		
+		
+		
+		List<String> list = new ArrayList<String>();
+		
+		RDN[] rdns = name.getRDNs();
+		for( RDN rdn : rdns) {
+			AttributeTypeAndValue[] atvs =  rdn.getTypesAndValues();
+			for( AttributeTypeAndValue atv : atvs ) {
+				
+				String displayType = OverrideSymbols.get( atv.getType() );
+				if( displayType == null) {
+					displayType = BCStyle.INSTANCE.oidToDisplayName( atv.getType() );
+					if( displayType == null) {
+						displayType = atv.getType().getId();
+					}
+				}  
+				
+				
+			   list.add( displayType + "=" + atv.getValue() );
+			}
+			
+			
+		}
+		
+		return list;
+	}
 	
+	protected X500Name replaceOrganizationIdentifier( X500Name name, String organizationIdentifier ) {
+
+		
+		boolean isReplaced = false;
+		
+		 RDN[] rdns = name.getRDNs();
+		 X500NameBuilder namebuilder = null; 
+		 
+		 namebuilder = new X500NameBuilder();
+		 
+		 for( RDN rdn : rdns) {
+			 
+			 if( rdn.isMultiValued() ) {
+				 List<AttributeTypeAndValue> atvs = new ArrayList<AttributeTypeAndValue>();
+				 for( AttributeTypeAndValue matv : rdn.getTypesAndValues() ) {
+					 if( matv.getType().equals(  ORGANIZATION_IDENTIFIER ) ) {
+						 atvs.add( new AttributeTypeAndValue ( ORGANIZATION_IDENTIFIER, new DERUTF8String( organizationIdentifier ) ) );
+						 isReplaced = true;
+					 }else {
+					 	atvs.add( matv );
+					 }
+				 }
+				 namebuilder.addMultiValuedRDN( atvs.toArray(new AttributeTypeAndValue[0] ) );
+			 } else {
+				 AttributeTypeAndValue atv = rdn.getFirst();
+				 if( atv.getType().equals(  ORGANIZATION_IDENTIFIER ) ) {
+					 namebuilder.addRDN( new AttributeTypeAndValue(  ORGANIZATION_IDENTIFIER, new DERUTF8String( organizationIdentifier ) ) );
+					 isReplaced = true;
+				 }else {
+					 namebuilder.addRDN( atv );
+				 }
+			 }
+		 }
+		 
+		if( !isReplaced ) {
+			 
+			namebuilder.addRDN( new AttributeTypeAndValue(  ORGANIZATION_IDENTIFIER, new DERUTF8String( organizationIdentifier ) ) ); 
+		}		
+		
+		return namebuilder.build();
+	}
+	
+
+
+
 	public String showPem( X509Certificate cert ) {
 		
 
@@ -139,7 +236,8 @@ public class EiDASCertificate {
 		certAttributes.addProperty("basicConstraints",
 				cert.getBasicConstraints() == -1 ? "CA: true" : "CA: false");
 
-		certAttributes.addProperty("subject", cert.getSubjectDN().toString());
+		certAttributes.addProperty("subject", getSubjectDNAsList( cert.getSubjectX500Principal() ).toString() );
+				
 		certAttributes.addProperty("issuer", cert.getIssuerDN().toString());
 
 		certAttributes.addProperty("validFrom", expiryDate.getTime());
@@ -181,7 +279,7 @@ public class EiDASCertificate {
 			throw new RuntimeException( e );
 		}
 
-		Gson gson =new GsonBuilder().setPrettyPrinting().create();
+		Gson gson =new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
 	
 		return gson.toJson(certObject);
 	}
@@ -364,6 +462,7 @@ public class EiDASCertificate {
 	private X509Certificate genCertificate( 
 				X509Certificate cert ,
 				KeyPair keyPair,
+				String organizationIdentifier,
 				String ncaName,
 				String ncaId,			
 				List<String> rolesList
@@ -385,7 +484,7 @@ public class EiDASCertificate {
 					certholder.getSerialNumber(),
 					certholder.getNotBefore(),
 					certholder.getNotAfter(),
-					certholder.getSubject(),
+					( organizationIdentifier == null )? certholder.getSubject() : replaceOrganizationIdentifier( certholder.getSubject(), organizationIdentifier ),
 				    keyPair.getPublic()
 			);
 			
@@ -458,7 +557,7 @@ public class EiDASCertificate {
 
 	
 	
-	public String addPsdAttibutes( String certificate, String privatekey, String passphrase, String ncaname, String ncaid, List<String> roles ) {
+	public String addPsdAttibutes( String certificate, String privatekey, String passphrase, String organizationIdentifier, String ncaname, String ncaid, List<String> roles ) {
 		
 		
 		
@@ -485,7 +584,7 @@ public class EiDASCertificate {
 		
 		X509Certificate newcert=null;
 		try {
-			newcert = eidascert.genCertificate( cert,  kp, ncaname, ncaid, roles );
+			newcert = eidascert.genCertificate( cert,  kp, organizationIdentifier, ncaname, ncaid, roles );
 		} catch (CertIOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
