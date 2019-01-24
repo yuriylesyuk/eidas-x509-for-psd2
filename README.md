@@ -103,10 +103,97 @@ Using the utility, you can now display salient fields of a certficiate and chang
 
 What's important for PSD2-related SDLC workflows, you can create invalid field values so that you can conduct negative tests.
 
+
+## Create a private key and certificate from json definition file
+
+Assuming cert.json contains:
+```
+{
+  "certInfo": {
+    "basicConstraints": "CA: true",
+    "subject": "L=London, ST=London, C=UK, OU=ou, O=org, CN=exco.com, organizationIdentifier=12345987",
+    "issuer": "EMAILADDRESS=ca@exco.com, CN=Authority CA Domain Name, OU=IT, O=Authority CA, L=London, ST=London, C=UK",
+    "validFrom": 1543573407000,
+    "expiryDate": 1543573407000,
+    "publicKey": "RSA, 2048",
+    "serialNumber": 1875022970,
+    "ncaName": "ncaname",
+    "ncaId": "ncaid",
+    "rolesOfPSP": ["PSP_AS","PSP_PI"]
+  }
+}
+```
+Executing following command
+```
+java -jar eidaspsd.jar create --json=../doc/certificates/cert.json --passphrase=Welcome123
+```
+Generates following output
+```
+-----BEGIN RSA PRIVATE KEY-----
+Proc-Type: 4,ENCRYPTED
+DEK-Info: AES-256-CBC,F330B064FFD528B2BBB21D897EEF54D5
+
+gJFDbq+nGaOy6hauYeDXZ5jkPv3uDQnEwgN0yGkXqDxJUu3OOsa+3HI+DAavMSIX
+S+W27wWYcAIylyr+n6lT5kiLjspPG7CrTzyh8xfIe5NPr0KNRoW7FIyp7qOa6ylj
++F7MPTkiDAoJDu1Cr3k3qbtL374EbsouuDjcibJafhcr5Ia141FJbRG/cQGhcO1l
+NFF39fvQ6ALJ5lRc/9tR5kYdlDKM3/4ucdSFSMX4SLsnBXu+ki6G761fiBSrXihs
+2fUt4xf/RINGsUQmaQzNGJshTEBimerVlb+aKKIE+30A5E3fasaClSLHlOa8PIV9
+e+Wo7XLJOQiyQCgIvQdy1o7pVz8+NjCok4RvCWprxYOMVZmGfFMup5sxpJc+wg2n
+lyAjOvtHhFwpXYExtJ+INn+VdUD61hgTX+jdQc9hfNsTUzDrM8dNwUuIQG+QR6aj
+EUKieT2tSyOnGCfNJO9IssXTPonV/dFjCHXpasEVxicvq5CBGuZFLAm8/mpAkypP
+0m10EcR+rWxgnjqRnHM3RjBf8a9iVjdo8rIu2Izla/Ui7YM4db/sKsSl3yq4DMfK
+PrO6irntsQmow63LgZ0OwqL2nP8yrt8WqQBc6q9darGNqUZ+/4k6PHUmZmfqVlH5
+P2g4z3svbR88z1M94n1MU4tFTU0TdR/R70cMI/9gKHliPoo/J1Jo8UI5dTnAAvMZ
+PWK9QsDI4VJaHYgsx4DNE+oywScenbDR6z4P3v9+F/E34siKfgphN7nSoP0cqsFn
+G62b2vRY39fyZLm+TaHXMQIm0I3jQNv8xN54GSchC9CrT5njhIGU8Fi+FCBWARt/
+4/dJ3UfvjWr/qZPWL3IcMNwGhpD0qfKYpUzcCNqgXMoAtjBUWY9REcdBeEHJRXIR
+dHoNjzhTnomKSflEXjuohZlk8UbZQNEdAa9mVf3iEJbcwQdckygxbq0FZWcAQWW/
+z4KouZ8scmgP5dQ/BPF+BzmOZO9UAJ3MzmksR3F/AIq4QeGQViE9TPhRK1w1Y81C
+pj/IGk1Fx5ksu2ECXJB6cXbW7Ndek7FbpsrpYVsH4mj9bpvCQ2a5O83+dJl/vyeD
+xFqm5wRrWYm2xau62vFCzOJtwocGn1ip2IaEVnSV8ClUWBodqVrVV+kX04PZctca
+deqtLyDnx9OHkg6XxmkQG1KPWVLBUZq/zyJCKE7FKepw/6IQ3wJ3TbHvx6tbGvG3
++H2+dyNPACZrWd3uSWfaUVN5v9GVKMt+wIeJWG2YBvnP49NLlkCajFvXIC/LC0Xi
+L4XR1naYWG8oK2+F0h7nxgI2I8HTRm3Gv6ZgyjjK3TyP28fP4Ej34i390byR0vWA
+iT6IVfiD9g3VqnBdP/A3gXVNfXMx7sTqxt/QEDQsXO5KTw582oY5ZShXDZ0nLlN8
+j7SKTcPj7NhFTe5vY6fEHoiJQYPwqj0T5rfpvPEuy6GFRtxeZTMqyvCdFmddlsf5
+9kpjD1iFeIibpoDUVrBk2FAYfz/WxqyRmPIwiyja0Rn2aMghXMtkl8hDjS+5QQqr
+E1aj0hkiRRnLVOKRP/bgcdp1RmQ6yi0HRVKIB9vIeePN3ekSk9aI/NFmOljiJe4F
+-----END RSA PRIVATE KEY-----
+
+-----BEGIN CERTIFICATE-----
+MIID5TCCAs2gAwIBAgIEb8KUejANBgkqhkiG9w0BAQUFADCBkjEaMBgGCSqGSIb3
+DQEJARYLY2FAZXhjby5jb20xITAfBgNVBAMMGEF1dGhvcml0eSBDQSBEb21haW4g
+TmFtZTELMAkGA1UECwwCSVQxFTATBgNVBAoMDEF1dGhvcml0eSBDQTEPMA0GA1UE
+BwwGTG9uZG9uMQ8wDQYDVQQIDAZMb25kb24xCzAJBgNVBAYTAlVLMB4XDTE4MTEz
+MDEwMjMyN1oXDTE4MTEzMDEwMjMyN1owcDEPMA0GA1UEBwwGTG9uZG9uMQ8wDQYD
+VQQIDAZMb25kb24xCzAJBgNVBAYTAlVLMQswCQYDVQQLDAJvdTEMMAoGA1UECgwD
+b3JnMREwDwYDVQQDDAhleGNvLmNvbTERMA8GA1UEYQwIMTIzNDU5ODcwggEiMA0G
+CSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDFBWq9Ikam+ShADHmSBoozbHvbZiWJ
+xQjVSxjv0X/VAj0QoZ8puIUsG/7VuELucYiU2xWH09j3ehB6sKFpCLPB/C3/VqXQ
+yhFDXtSnYQx8EqoWcL/FRkpIgMBRdbBEtasEoLpEE40pdbZTEYBu64y3NPzmpsQj
+TEbmKHZ+aq1JGfkDPBdpW2p9UOG/EOn2tVo7AMT4NxeV3N1Zkz9mH/S+LlF2MEj7
+vruK8ZpmKSx5/7IG7nZ5wHxPxDSeqx5yiA/S1g6TDhyQV1agIvrY+BwsvJAikXW7
+DFotIJYrHPrSLRV4vYUikQinUQzsbDGGUUjykSA3nkCumpGKGcU7D04ZAgMBAAGj
+ZDBiMAwGA1UdEwQFMAMBAf8wUgYIKwYBBQUHAQMERjBEMEIGBgQAgZgnAjA4MCYw
+EQYHBACBmCcBAQwGUFNQX0FTMBEGBwQAgZgnAQIMBlBTUF9QSQwHbmNhbmFtZQwF
+bmNhaWQwDQYJKoZIhvcNAQEFBQADggEBAI9L9RRM5+GJya9xV5EV5TmfRXY9uJ/N
+Awjym1BmOEUzsZPoIWXCeRkpSPX7XgyLQtPZ8Q+ItQmB+vHJm2rkURNFBw4fHcFo
+aSYGuj0ftswHqUhGiRi/7V/7D3aWv9ok1zFF3wFCaM60nGjTBp8VsjpEyZAbo84T
+5AIQjo/Y6FU42Uv0W3iEoC0IjPnbEuN30Z9LoECgJ4o3lFfKrgAXOhwIsk62Xog4
+qn0TviLeK4pQlCGk40AjUb5+eycr0M2k6VeiC5xoxTpRiLVZL1T6VYau7jeApLAh
+zrE1FjcC+B4trR5n2RNpJ7khr+hQ2nFEXjKVGrk9WNZux1gTzzpqxP0=
+-----END CERTIFICATE-----
+```
+
+
+
+
+
+
 ## Show contents of the certificate
 
 ```
-java -jar iedaspsd.jar show --cert=../doc/certificates/gennedcert.pem
+java -jar eidaspsd.jar show --cert=../doc/certificates/gennedcert.pem
 {
   "certInfo": {
     "basicConstraints": "CA: true",
@@ -131,7 +218,7 @@ java -jar iedaspsd.jar show --cert=../doc/certificates/gennedcert.pem
 ## Edit psd2 fields and sign new certificate with a private key
 
 ```
-java -jar iedaspsd.jar set --cert=../doc/certificates/gennedcert.pem --key=../doc/certificates/key.pem --passphrase=Welcome123 --roles=PSP_PI --ncaname=ncaname --ncaid=ncaid
+java -jar eidaspsd.jar set --cert=../doc/certificates/gennedcert.pem --key=../doc/certificates/key.pem --passphrase=Welcome123 --roles=PSP_PI --ncaname=ncaname --ncaid=ncaid
 -----BEGIN CERTIFICATE-----
 MIID0DCCArigAwIBAgIEb8KUejANBgkqhkiG9w0BAQUFADCBlDELMAkGA1UEBhMC
 REUxDzANBgNVBAgMBkhlc3NlbjESMBAGA1UEBwwJRnJhbmtmdXJ0MRUwEwYDVQQK
@@ -159,7 +246,7 @@ FyPdGiDSA/7uEXmrsNve4ity11k=
 
 ## Verify edited values
 ```
- java -jar iedaspsd.jar show --cert=/tmp/cert.pem
+ java -jar eidaspsd.jar show --cert=/tmp/cert.pem
 {
   "certInfo": {
     "basicConstraints": "CA: true",
@@ -183,7 +270,7 @@ FyPdGiDSA/7uEXmrsNve4ity11k=
 
 ## Set up/overwrite organizationIdentifier/2.5.4.97
 ```
-java -jar iedaspsd.jar set --cert=../doc/certificates/gennedcert.pem --key=../doc/certificates/key.pem  --passphrase=Welcome123 --roles=PSP_PI --ncaname=ncaname --ncaid=ncaid --organizationidentifier=PSDES-BDE-3DFD21
+java -jar eidaspsd.jar set --cert=../doc/certificates/gennedcert.pem --key=../doc/certificates/key.pem  --passphrase=Welcome123 --roles=PSP_PI --ncaname=ncaname --ncaid=ncaid --organizationidentifier=PSDES-BDE-3DFD21
 ```
 
 

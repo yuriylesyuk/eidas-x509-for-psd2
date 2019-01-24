@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="create_run_jar" name="Create Runnable Jar for Project eidas-certificate-parser with Jar-in-Jar Loader">
+    <!--this file was created by Eclipse Runnable JAR file Export Wizard-->
+    <!--ANT 1.7 is required-->
+    <!--define folder properties-->
+    <property name="dir.buildfile" value="."/>
+    <property name="dir.workspace" value="/Users/yuriyl/eclipse-workspace"/>
+    <property name="dir.jarfile" value="/Users/yuriyl/projects/eidas-x509-for-psd2/bin"/>
+    <target name="create_run_jar">
+        <jar destfile="${dir.jarfile}/eidaspsd.jar">
+            <manifest>
+                <attribute name="Main-Class" value="org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader"/>
+                <attribute name="Rsrc-Main-Class" value="com.exco.eidas.EiDASCertificateCLI"/>
+                <attribute name="Class-Path" value="."/>
+                <attribute name="Rsrc-Class-Path" value="./ expressions-1.0.0.jar message-flow-1.0.0.jar gson-2.3.jar guava-20.0.jar bcpkix-jdk15on-1.56.jar bcprov-jdk15on-1.56.jar picocli-3.9.1.jar"/>
+            </manifest>
+            <zipfileset src="jar-in-jar-loader.zip"/>
+            <fileset dir="${dir.buildfile}/target/classes"/>
+            <zipfileset dir="/Users/yuriyl/.m2/repository/com/apigee/expressions/1.0.0" includes="expressions-1.0.0.jar"/>
+            <zipfileset dir="/Users/yuriyl/.m2/repository/com/apigee/message-flow/1.0.0" includes="message-flow-1.0.0.jar"/>
+            <zipfileset dir="/Users/yuriyl/.m2/repository/com/google/code/gson/gson/2.3" includes="gson-2.3.jar"/>
+            <zipfileset dir="/Users/yuriyl/.m2/repository/com/google/guava/guava/20.0" includes="guava-20.0.jar"/>
+            <zipfileset dir="/Users/yuriyl/.m2/repository/org/bouncycastle/bcpkix-jdk15on/1.56" includes="bcpkix-jdk15on-1.56.jar"/>
+            <zipfileset dir="/Users/yuriyl/.m2/repository/org/bouncycastle/bcprov-jdk15on/1.56" includes="bcprov-jdk15on-1.56.jar"/>
+            <zipfileset dir="/Users/yuriyl/.m2/repository/info/picocli/picocli/3.9.1" includes="picocli-3.9.1.jar"/>
+        </jar>
+    </target>
+</project>

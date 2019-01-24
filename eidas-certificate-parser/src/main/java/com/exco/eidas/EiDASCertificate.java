@@ -5,15 +5,25 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
+import java.math.BigInteger;
+import java.security.KeyFactory;
 import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.SecureRandom;
 import java.security.Security;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.DSAPublicKey;
 import java.security.interfaces.ECPublicKey;
+import java.security.interfaces.RSAPrivateCrtKey;
+import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -22,6 +32,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.security.auth.x500.X500Principal;
 
@@ -33,38 +45,58 @@ import org.bouncycastle.asn1.ASN1OctetString;
 import org.bouncycastle.asn1.ASN1Sequence;
 import org.bouncycastle.asn1.DERSequence;
 import org.bouncycastle.asn1.DERUTF8String;
+import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.asn1.x500.AttributeTypeAndValue;
 import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.X500NameBuilder;
 import org.bouncycastle.asn1.x500.style.BCStyle;
+import org.bouncycastle.asn1.x509.BasicConstraints;
 import org.bouncycastle.asn1.x509.Extension;
+import org.bouncycastle.asn1.x509.RSAPublicKeyStructure;
+import org.bouncycastle.asn1.x509.X509Extension;
 import org.bouncycastle.asn1.x509.qualified.QCStatement;
 import org.bouncycastle.cert.CertIOException;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder;
+import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
+import org.bouncycastle.crypto.generators.RSAKeyPairGenerator;
+import org.bouncycastle.crypto.params.RSAKeyGenerationParameters;
+import org.bouncycastle.crypto.params.RSAKeyParameters;
+import org.bouncycastle.crypto.params.RSAPrivateCrtKeyParameters;
+import org.bouncycastle.crypto.prng.EntropySource;
+import org.bouncycastle.crypto.util.PrivateKeyInfoFactory;
+import org.bouncycastle.jcajce.provider.asymmetric.rsa.BCRSAPublicKey;
+import org.bouncycastle.jcajce.provider.asymmetric.rsa.RSAUtil;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.jce.provider.JCEECPublicKey;
 import org.bouncycastle.openssl.PEMDecryptorProvider;
 import org.bouncycastle.openssl.PEMEncryptedKeyPair;
+import org.bouncycastle.openssl.PEMEncryptor;
 import org.bouncycastle.openssl.PEMException;
 import org.bouncycastle.openssl.PEMKeyPair;
 import org.bouncycastle.openssl.PEMParser;
+import org.bouncycastle.openssl.jcajce.JcaPEMWriter;
 import org.bouncycastle.openssl.jcajce.JcaMiscPEMGenerator;
 import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 import org.bouncycastle.openssl.jcajce.JcePEMDecryptorProviderBuilder;
+import org.bouncycastle.openssl.jcajce.JcePEMEncryptorBuilder;
 import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
+import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemObjectGenerator;
 import org.bouncycastle.util.io.pem.PemWriter;
 
 import com.google.common.hash.Hashing;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 public class EiDASCertificate {
 	
@@ -90,6 +122,11 @@ public class EiDASCertificate {
     	OverrideSymbols.put( ORGANIZATION_IDENTIFIER, "organizationIdentifier");
     }
 
+    private static final Hashtable<String,ASN1ObjectIdentifier> LookUpSymbols = new Hashtable();
+    static
+    {
+    	LookUpSymbols.put( "organizationIdentifier", ORGANIZATION_IDENTIFIER );
+    }
 
     public static final Map<String,ASN1ObjectIdentifier> rolesOids = new LinkedHashMap<String,ASN1ObjectIdentifier>() {{
         put( "PSP_AS", oid_etsi_psd2_role_psp_as );
@@ -173,6 +210,17 @@ public class EiDASCertificate {
 		return list;
 	}
 	
+	protected String replaceOverrides( String rdnsString ) {
+		
+ 		String replacedRdnsString = rdnsString;
+		
+		for( String dn : LookUpSymbols.keySet() ) {
+			replacedRdnsString = replacedRdnsString.replaceAll( dn+"=", LookUpSymbols.get(dn).getId().toString()+"=" );
+		};
+		
+		return replacedRdnsString;
+	}
+	
 	protected X500Name replaceOrganizationIdentifier( X500Name name, String organizationIdentifier ) {
 
 		
@@ -234,9 +282,9 @@ public class EiDASCertificate {
 
 		// getKeyUsage
 		certAttributes.addProperty("basicConstraints",
-				cert.getBasicConstraints() == -1 ? "CA: true" : "CA: false");
+				cert.getBasicConstraints() == -1 ? "CA: false" : "CA: true");
 
-		certAttributes.addProperty("subject", getSubjectDNAsList( cert.getSubjectX500Principal() ).toString() );
+		certAttributes.addProperty("subject", String.join(", ", getSubjectDNAsList( cert.getSubjectX500Principal() ) ) );
 				
 		certAttributes.addProperty("issuer", cert.getIssuerDN().toString());
 
@@ -286,7 +334,7 @@ public class EiDASCertificate {
 	
 	
 	
-	private String writePem( X509Certificate cert ) {
+	public String writePem( X509Certificate cert ) {
 	
 		StringWriter sw = new StringWriter();
 	
@@ -458,6 +506,34 @@ public class EiDASCertificate {
 	}
 	
 	
+	private QCStatement qcStatementForRoles( 
+			String ncaName,
+			String ncaId,
+			List<String> rolesList) {
+		
+	    final ASN1EncodableVector roles = new ASN1EncodableVector();
+	    
+	    for( String roleKey : rolesList ) {
+	    	
+	    	final ASN1EncodableVector role = new ASN1EncodableVector();
+	    	
+	    	role.add( rolesOids.get( roleKey ) );
+	    	role.add( new DERUTF8String( roleKey ));
+	    	
+	    	roles.add(new DERSequence( role ));
+	    }
+
+	    ASN1Encodable st = new DERSequence(new ASN1Encodable[]{
+	    		new DERSequence(roles ), 
+	    		new DERUTF8String( ncaName ), 
+	    		new DERUTF8String( ncaId ) 
+	    	});
+
+	    
+	    
+	    return new QCStatement(oid_etsi_psd2_qcStatement, st);
+	}
+	
 	
 	private X509Certificate genCertificate( 
 				X509Certificate cert ,
@@ -489,28 +565,7 @@ public class EiDASCertificate {
 			);
 			
 
-		    
-		    final ASN1EncodableVector roles = new ASN1EncodableVector();
-		    
-		    for( String roleKey : rolesList ) {
-		    	
-		    	final ASN1EncodableVector role = new ASN1EncodableVector();
-		    	
-		    	role.add( rolesOids.get( roleKey ) );
-		    	role.add( new DERUTF8String( roleKey ));
-		    	
-		    	roles.add(new DERSequence( role ));
-		    }
-
-		    ASN1Encodable st = new DERSequence(new ASN1Encodable[]{
-		    		new DERSequence(roles ), 
-		    		new DERUTF8String( ncaName ), 
-		    		new DERUTF8String( ncaId ) 
-		    	});
-
-		    
-		    
-		    QCStatement qcst =  new QCStatement(oid_etsi_psd2_qcStatement, st);
+		    QCStatement qcst = qcStatementForRoles( ncaName, ncaId, rolesList );
 		    
 		    final ASN1EncodableVector qcsts = new ASN1EncodableVector();
 		    qcsts.add(qcst);
@@ -593,15 +648,136 @@ public class EiDASCertificate {
 		
 		
 		
-		try {
-			eidascert.setRolesOfPSP(cert, new String[]{ "PSP_AS","PSP_PI" } );
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		try {
+//			eidascert.setRolesOfPSP(cert, new String[]{ "PSP_AS","PSP_PI" } );
+//		} catch (Exception e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 		
 		String certpem = eidascert.writePem( newcert );
 		
 		return certpem;
 	}	
+	
+	protected KeyPair genKeyPair() throws NoSuchAlgorithmException, NoSuchProviderException {
+		Security.addProvider(new BouncyCastleProvider());
+		
+		// generate key pair
+		KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA", "BC");
+		generator.initialize( 2048 );
+		
+		KeyPair keyPair = generator.generateKeyPair();
+		
+		return keyPair;
+	}
+	
+	protected String privateKeyPem( KeyPair keyPair, String passphrase ) throws IOException, NoSuchAlgorithmException, NoSuchProviderException {
+		Security.addProvider(new BouncyCastleProvider());
+
+        RSAPublicKey rsaPublicKey = (RSAPublicKey) keyPair.getPublic();
+        RSAPrivateKey rsaPrivateKey = (RSAPrivateKey) keyPair.getPrivate();
+				
+		// 
+		StringWriter writer = new StringWriter();
+		
+		JcaPEMWriter pemWriter = new JcaPEMWriter(writer);
+		try {
+			if( passphrase != null ) {
+				final PEMEncryptor encryptor = new JcePEMEncryptorBuilder("AES-256-CBC").setProvider("BC").build( passphrase.toCharArray() );
+				
+				final JcaMiscPEMGenerator pemGenerator = new JcaMiscPEMGenerator( rsaPrivateKey, encryptor );
+		        
+		        pemWriter.writeObject( pemGenerator);
+		        
+			}else {
+
+				final PemObject pemObject = new PemObject( "RSA PRIVATE KEY", rsaPrivateKey.getEncoded());
+				
+				pemWriter.writeObject( pemObject );
+			}
+		} finally {
+			pemWriter.flush();
+			pemWriter.close();
+		}
+		
+		return writer.toString();
+	}
+	
+	private boolean isCACertificate( String constraint) {
+		
+		// isCA certificate
+		Pattern pattern = Pattern.compile( "CA: *(.*)" );
+		Matcher matcher = pattern.matcher( constraint );
+		
+		
+		if( matcher.matches() ) {
+			return Boolean.parseBoolean( matcher.group(1) );
+		}else {
+			return false;
+		}
+		
+	}
+	
+	
+	public X509Certificate createFromJson( String json, KeyPair keyPair) throws OperatorCreationException, CertIOException, CertificateException {
+		
+		JsonObject certdesc = (new JsonParser()).parse( json ).getAsJsonObject();
+		
+		JsonObject certinfo = certdesc.getAsJsonObject("certInfo");
+	
+		
+	 
+		
+		String issuerDN = certinfo.get("issuer").getAsString();
+		String subjectDN = certinfo.get("subject").getAsString();
+		
+		long notBefore = certinfo.get("validFrom").getAsLong() / 1000L;;
+		long notAfter = certinfo.get("expiryDate").getAsLong() / 1000L;;
+
+		BigInteger serialNumber = certinfo.get("serialNumber").getAsBigInteger();
+		
+		
+		JcaX509v3CertificateBuilder certbuilder = new JcaX509v3CertificateBuilder(
+				new X500Name( issuerDN ),
+				serialNumber,
+				Date.from( Instant.ofEpochSecond( notBefore ) ),
+				Date.from( Instant.ofEpochSecond( notAfter ) ),
+				new X500Name( replaceOverrides( subjectDN ) ),
+			    keyPair.getPublic()
+		);
+		 
+		boolean isCA = isCACertificate( certinfo.get("basicConstraints").getAsString() );
+		certbuilder.addExtension( Extension.basicConstraints, false, new BasicConstraints( isCA ) );
+		
+		// psd2 attributes
+		String ncaName = certinfo.get("ncaName").getAsString();
+		String ncaId =  certinfo.get("ncaId").getAsString();
+		
+		
+		List<String> rolesList = new ArrayList<String>();
+		
+		JsonArray roles = certinfo.get("rolesOfPSP").getAsJsonArray();
+		for( JsonElement r: roles) {
+			rolesList.add( r.getAsString() );
+		}
+
+	    QCStatement qcst = qcStatementForRoles( ncaName, ncaId, rolesList );
+	    
+	    final ASN1EncodableVector qcsts = new ASN1EncodableVector();
+	    qcsts.add(qcst);
+
+	    certbuilder.addExtension(oid_QCStatements, false,  new DERSequence(qcsts) );
+		   
+		   
+		ContentSigner signer =  new JcaContentSignerBuilder("SHA1withRSA").build(keyPair.getPrivate());;
+		
+		
+		
+		
+	    X509CertificateHolder cert = certbuilder.build( signer );
+	
+		
+		return new JcaX509CertificateConverter().getCertificate( cert );
+	}
 }

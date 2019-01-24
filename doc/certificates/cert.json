@@ -1,0 +1,14 @@
+{
+  "certInfo": {
+    "basicConstraints": "CA: true",
+    "subject": "L=London, ST=London, C=UK, OU=ou, O=org, CN=exco.com, organizationIdentifier=12345987",
+    "issuer": "EMAILADDRESS=ca@exco.com, CN=Authority CA Domain Name, OU=IT, O=Authority CA, L=London, ST=London, C=UK",
+    "validFrom": 1543573407000,
+    "expiryDate": 1543573407000,
+    "publicKey": "RSA, 2048",
+    "serialNumber": 1875022970,
+    "ncaName": "ncaname",
+    "ncaId": "ncaid",
+    "rolesOfPSP": ["PSP_AS","PSP_PI"]
+  }
+}

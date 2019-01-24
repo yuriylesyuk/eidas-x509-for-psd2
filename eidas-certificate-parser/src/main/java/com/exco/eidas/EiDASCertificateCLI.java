@@ -3,16 +3,26 @@ package com.exco.eidas;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.security.KeyPair;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.concurrent.Callable;
+
+import org.bouncycastle.operator.OperatorCreationException;
 
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.HelpCommand;
 import picocli.CommandLine.Option;
 
-
+/*
+ * 
+ * Example: 
+ * 	show --cert=../doc/certificates/cert.pem --passphrase=Welcome123
+ */
 @Command(name="show",description = "show contents of the certificate")
  class Show  implements Callable<Void>{
     @Option(names = "--cert", required = true, description = "certificate file")
@@ -39,6 +49,58 @@ import picocli.CommandLine.Option;
     }
 }
 
+/*
+ * 
+ * Example: 
+ * 	create --json=../doc/certificates/cert.json --passphrase=Welcome123
+ */
+@Command(name="create", description = "create iedas certificate from json file definition; generate private key with or without password")
+ class Create  implements Callable<Void>{
+    @Option(names = "--json", required = true, description = "json definition of certificate")
+    String jsonFile;
+
+    @Option(names = "--passphrase", required = false, description = "passphrase as an argument")
+    String passphrase;
+
+    @Option(names = "--passphrase:prompt", required = false, description = "ask passphrase inteactively", interactive = true)
+    String passphrasePrompt;
+
+    @Option(names = "--passphrase:env", required = false, description = "env variable that contains passphrase")
+    String passphraseEnv;
+   
+    
+    @Override
+    public Void call() throws IOException, OperatorCreationException, CertificateException, NoSuchAlgorithmException, NoSuchProviderException {
+
+    	passphrase = EiDASCertificateCLI.getPassphaseByPrecedence( passphrase, passphrasePrompt, passphraseEnv );
+    	
+
+		String json = new String(Files.readAllBytes(Paths.get( jsonFile )));
+
+		
+		EiDASCertificate eidascert = new EiDASCertificate();
+		
+		KeyPair keyPair = eidascert.genKeyPair();
+		
+		
+		String keyPem = eidascert.privateKeyPem( keyPair, passphrase );
+		System.out.println( keyPem );
+		
+		X509Certificate cert = eidascert.createFromJson(json, keyPair);
+
+		String pem = eidascert.writePem( cert );
+
+		System.out.println( pem );
+      
+      	return null;
+    }
+}
+	
+/*
+ * 
+ * Example: 
+ * 	set --cert=../doc/certificates/gennedcert.pem --key=../doc/certificates/key.pem --passphrase=Welcome123 --roles=PSP_PI --ncaname=ncaname --ncaid=ncaid
+ */
 @Command(name="set", description = "set psd2 attributes of the iedas certificate")
  class Set  implements Callable<Void>{
     @Option(names = "--cert", required = true, description = "certificate file in pem format")
@@ -75,15 +137,7 @@ import picocli.CommandLine.Option;
     @Override
     public Void call() throws IOException {
 
-    	// password precedence
-		if( passphrase != null ) {
-			  
-		} else if ( passphraseEnv != null) {
-			passphrase = System.getenv( passphraseEnv );
-		} else if ( passphrasePrompt != null) {
-			passphrase = passphrasePrompt;
-		}
-
+    	passphrase = EiDASCertificateCLI.getPassphaseByPrecedence( passphrase, passphrasePrompt, passphraseEnv );
       
 		EiDASCertificate eidascert = new EiDASCertificate();
 
@@ -105,11 +159,27 @@ import picocli.CommandLine.Option;
 	subcommands = {
 			HelpCommand.class,
 		    Show.class,
+		    Create.class,
 		    Set.class}
 )
 public class EiDASCertificateCLI implements Callable<Void>{
 	
-
+	public static String getPassphaseByPrecedence( String passphraseOption, String passphraseEnv, String passphrasePrompt ) {
+    	// password precedence
+		String passphrase = null;
+		
+		if( passphraseOption != null ) {
+			passphrase = passphraseOption;
+			
+		} else if ( passphraseEnv != null) {
+			passphrase = System.getenv( passphraseEnv );
+			
+		} else if ( passphrasePrompt != null) {
+			passphrase = passphrasePrompt;
+			
+		}
+		return passphrase;
+	}
     
     
     public static void main(String[] args) throws Exception {
