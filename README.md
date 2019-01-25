@@ -134,57 +134,20 @@ Proc-Type: 4,ENCRYPTED
 DEK-Info: AES-256-CBC,F330B064FFD528B2BBB21D897EEF54D5
 
 gJFDbq+nGaOy6hauYeDXZ5jkPv3uDQnEwgN0yGkXqDxJUu3OOsa+3HI+DAavMSIX
-S+W27wWYcAIylyr+n6lT5kiLjspPG7CrTzyh8xfIe5NPr0KNRoW7FIyp7qOa6ylj
-+F7MPTkiDAoJDu1Cr3k3qbtL374EbsouuDjcibJafhcr5Ia141FJbRG/cQGhcO1l
-NFF39fvQ6ALJ5lRc/9tR5kYdlDKM3/4ucdSFSMX4SLsnBXu+ki6G761fiBSrXihs
-2fUt4xf/RINGsUQmaQzNGJshTEBimerVlb+aKKIE+30A5E3fasaClSLHlOa8PIV9
-e+Wo7XLJOQiyQCgIvQdy1o7pVz8+NjCok4RvCWprxYOMVZmGfFMup5sxpJc+wg2n
-lyAjOvtHhFwpXYExtJ+INn+VdUD61hgTX+jdQc9hfNsTUzDrM8dNwUuIQG+QR6aj
-EUKieT2tSyOnGCfNJO9IssXTPonV/dFjCHXpasEVxicvq5CBGuZFLAm8/mpAkypP
-0m10EcR+rWxgnjqRnHM3RjBf8a9iVjdo8rIu2Izla/Ui7YM4db/sKsSl3yq4DMfK
-PrO6irntsQmow63LgZ0OwqL2nP8yrt8WqQBc6q9darGNqUZ+/4k6PHUmZmfqVlH5
-P2g4z3svbR88z1M94n1MU4tFTU0TdR/R70cMI/9gKHliPoo/J1Jo8UI5dTnAAvMZ
-PWK9QsDI4VJaHYgsx4DNE+oywScenbDR6z4P3v9+F/E34siKfgphN7nSoP0cqsFn
-G62b2vRY39fyZLm+TaHXMQIm0I3jQNv8xN54GSchC9CrT5njhIGU8Fi+FCBWARt/
-4/dJ3UfvjWr/qZPWL3IcMNwGhpD0qfKYpUzcCNqgXMoAtjBUWY9REcdBeEHJRXIR
-dHoNjzhTnomKSflEXjuohZlk8UbZQNEdAa9mVf3iEJbcwQdckygxbq0FZWcAQWW/
-z4KouZ8scmgP5dQ/BPF+BzmOZO9UAJ3MzmksR3F/AIq4QeGQViE9TPhRK1w1Y81C
-pj/IGk1Fx5ksu2ECXJB6cXbW7Ndek7FbpsrpYVsH4mj9bpvCQ2a5O83+dJl/vyeD
-xFqm5wRrWYm2xau62vFCzOJtwocGn1ip2IaEVnSV8ClUWBodqVrVV+kX04PZctca
-deqtLyDnx9OHkg6XxmkQG1KPWVLBUZq/zyJCKE7FKepw/6IQ3wJ3TbHvx6tbGvG3
-+H2+dyNPACZrWd3uSWfaUVN5v9GVKMt+wIeJWG2YBvnP49NLlkCajFvXIC/LC0Xi
-L4XR1naYWG8oK2+F0h7nxgI2I8HTRm3Gv6ZgyjjK3TyP28fP4Ej34i390byR0vWA
-iT6IVfiD9g3VqnBdP/A3gXVNfXMx7sTqxt/QEDQsXO5KTw582oY5ZShXDZ0nLlN8
-j7SKTcPj7NhFTe5vY6fEHoiJQYPwqj0T5rfpvPEuy6GFRtxeZTMqyvCdFmddlsf5
-9kpjD1iFeIibpoDUVrBk2FAYfz/WxqyRmPIwiyja0Rn2aMghXMtkl8hDjS+5QQqr
+...
 E1aj0hkiRRnLVOKRP/bgcdp1RmQ6yi0HRVKIB9vIeePN3ekSk9aI/NFmOljiJe4F
 -----END RSA PRIVATE KEY-----
 
 -----BEGIN CERTIFICATE-----
 MIID5TCCAs2gAwIBAgIEb8KUejANBgkqhkiG9w0BAQUFADCBkjEaMBgGCSqGSIb3
-DQEJARYLY2FAZXhjby5jb20xITAfBgNVBAMMGEF1dGhvcml0eSBDQSBEb21haW4g
-TmFtZTELMAkGA1UECwwCSVQxFTATBgNVBAoMDEF1dGhvcml0eSBDQTEPMA0GA1UE
-BwwGTG9uZG9uMQ8wDQYDVQQIDAZMb25kb24xCzAJBgNVBAYTAlVLMB4XDTE4MTEz
-MDEwMjMyN1oXDTE4MTEzMDEwMjMyN1owcDEPMA0GA1UEBwwGTG9uZG9uMQ8wDQYD
-VQQIDAZMb25kb24xCzAJBgNVBAYTAlVLMQswCQYDVQQLDAJvdTEMMAoGA1UECgwD
-b3JnMREwDwYDVQQDDAhleGNvLmNvbTERMA8GA1UEYQwIMTIzNDU5ODcwggEiMA0G
-CSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDFBWq9Ikam+ShADHmSBoozbHvbZiWJ
-xQjVSxjv0X/VAj0QoZ8puIUsG/7VuELucYiU2xWH09j3ehB6sKFpCLPB/C3/VqXQ
-yhFDXtSnYQx8EqoWcL/FRkpIgMBRdbBEtasEoLpEE40pdbZTEYBu64y3NPzmpsQj
-TEbmKHZ+aq1JGfkDPBdpW2p9UOG/EOn2tVo7AMT4NxeV3N1Zkz9mH/S+LlF2MEj7
-vruK8ZpmKSx5/7IG7nZ5wHxPxDSeqx5yiA/S1g6TDhyQV1agIvrY+BwsvJAikXW7
-DFotIJYrHPrSLRV4vYUikQinUQzsbDGGUUjykSA3nkCumpGKGcU7D04ZAgMBAAGj
-ZDBiMAwGA1UdEwQFMAMBAf8wUgYIKwYBBQUHAQMERjBEMEIGBgQAgZgnAjA4MCYw
-EQYHBACBmCcBAQwGUFNQX0FTMBEGBwQAgZgnAQIMBlBTUF9QSQwHbmNhbmFtZQwF
-bmNhaWQwDQYJKoZIhvcNAQEFBQADggEBAI9L9RRM5+GJya9xV5EV5TmfRXY9uJ/N
-Awjym1BmOEUzsZPoIWXCeRkpSPX7XgyLQtPZ8Q+ItQmB+vHJm2rkURNFBw4fHcFo
-aSYGuj0ftswHqUhGiRi/7V/7D3aWv9ok1zFF3wFCaM60nGjTBp8VsjpEyZAbo84T
-5AIQjo/Y6FU42Uv0W3iEoC0IjPnbEuN30Z9LoECgJ4o3lFfKrgAXOhwIsk62Xog4
-qn0TviLeK4pQlCGk40AjUb5+eycr0M2k6VeiC5xoxTpRiLVZL1T6VYau7jeApLAh
+...
 zrE1FjcC+B4trR5n2RNpJ7khr+hQ2nFEXjKVGrk9WNZux1gTzzpqxP0=
 -----END CERTIFICATE-----
 ```
-
+User --key and/or --cert options to store private key and certificate to files. I.e.:
+```
+java -jar eidaspsd.jar create --json=../doc/certificates/cert.json --passphrase=Welcome123 --key=/tmp/key.pem --cert=/tmp/cert.pem
+```
 
 
 
@@ -272,7 +235,22 @@ FyPdGiDSA/7uEXmrsNve4ity11k=
 ```
 java -jar eidaspsd.jar set --cert=../doc/certificates/gennedcert.pem --key=../doc/certificates/key.pem  --passphrase=Welcome123 --roles=PSP_PI --ncaname=ncaname --ncaid=ncaid --organizationidentifier=PSDES-BDE-3DFD21
 ```
+## Specifying password
+Options --passphrase, --phassphrase:env and --passphrase:prompt let you specify passphase either in command line or in an environment variable or ask for it interactively. If more than one passphrase option is specified, the precedence is: 
+```
+higher: command line
+      : env
+lower : prompt
+```
 
+```
+      --passphrase=<passphrase>
+                          passphrase as an argument
+      --passphrase:env=<passphraseEnv>
+                          env variable that contains passphrase
+      --passphrase:prompt=<passphrasePrompt>
+                          ask passphrase inteactively
+```
 
 ## Disclaimer
 
@@ -280,7 +258,7 @@ This example is not an official Google product, nor is it part of an official Go
 
 ## License
 
-This material is copyright 2018, Google LLC.
+This material is copyright 2018-2019, Google LLC.
 and is licensed under the Apache 2.0 license. See the [LICENSE](LICENSE) file.
 
 ## Status

@@ -58,6 +58,14 @@ import picocli.CommandLine.Option;
  class Create  implements Callable<Void>{
     @Option(names = "--json", required = true, description = "json definition of certificate")
     String jsonFile;
+    
+
+    @Option(names = "--cert", required = false, description = "optional to save certificate into file in pem format")
+    String certFile;
+
+    @Option(names = "--key", required = false, description = "optional to save private key into file in pem format")
+    String keyFile;
+
 
     @Option(names = "--passphrase", required = false, description = "passphrase as an argument")
     String passphrase;
@@ -84,15 +92,18 @@ import picocli.CommandLine.Option;
 		
 		
 		String keyPem = eidascert.privateKeyPem( keyPair, passphrase );
-		System.out.println( keyPem );
+		
+		EiDASCertificateCLI.outputStringToFile( keyFile, keyPem );
+		
 		
 		X509Certificate cert = eidascert.createFromJson(json, keyPair);
+		
+		String certPem = eidascert.writePem( cert );
 
-		String pem = eidascert.writePem( cert );
+		EiDASCertificateCLI.outputStringToFile( certFile, certPem );
 
-		System.out.println( pem );
-      
-      	return null;
+
+		return null;
     }
 }
 	
@@ -105,6 +116,9 @@ import picocli.CommandLine.Option;
  class Set  implements Callable<Void>{
     @Option(names = "--cert", required = true, description = "certificate file in pem format")
     String certFile;
+
+    @Option(names = "--cert:out", required = false, description = "optional file to store certificate")
+    String certFileOut;
 
     @Option(names = "--key", required = true, description = "private key file in pem format")
     String keyFile;
@@ -136,7 +150,7 @@ import picocli.CommandLine.Option;
     
     @Override
     public Void call() throws IOException {
-
+    	
     	passphrase = EiDASCertificateCLI.getPassphaseByPrecedence( passphrase, passphrasePrompt, passphraseEnv );
       
 		EiDASCertificate eidascert = new EiDASCertificate();
@@ -145,11 +159,12 @@ import picocli.CommandLine.Option;
 	 
 		String key = new String(Files.readAllBytes(Paths.get( keyFile )));
 		 
-		String certpem = eidascert.addPsdAttibutes( cert, key, passphrase, orgId, ncaName, ncaId, roles );
+		String certPem = eidascert.addPsdAttibutes( cert, key, passphrase, orgId, ncaName, ncaId, roles );
 
-      System.out.println(certpem);
+
+		EiDASCertificateCLI.outputStringToFile( certFileOut, certPem );
       
-      return null;
+		return null;
     }
 }
 	
@@ -181,7 +196,14 @@ public class EiDASCertificateCLI implements Callable<Void>{
 		return passphrase;
 	}
     
-    
+	public static void outputStringToFile( String file, String contents ) throws IOException {
+		if( file == null ) {
+			System.out.println( contents );
+		}else {
+			Files.write( Paths.get( file ) , contents.getBytes() );
+		}
+	}
+	
     public static void main(String[] args) throws Exception {
 
 
