@@ -97,7 +97,7 @@ $ curl -H 'SSL_CLIENT_CERT: -----BEGIN CERTIFICATE-----\nMIIECDCCAvCgAwIBAgIEb8K
 
 # eidaspsd cli utility
 
-The /bin/eidaspsd utility supports collection of operations to facilitate management of eiDAS/PSD2 certificates. Due to the fact that eiDAS statements are qcExtentions in the ASN.1 format, it is not possible to see or manipulate its contents with most of the utilities, ie, openssl, cfssl, keytool, etc.
+The ./bin/eidaspsd utility supports collection of operations to facilitate management of eiDAS/PSD2 certificates. Due to the fact that eiDAS statements are qcExtentions in the ASN.1 format, it is not possible to see or manipulate its contents with most of the utilities, ie, openssl, cfssl, keytool, etc.
 
 Using the utility, you can now display salient fields of a certficiate and change/set up PSD2 fields.
 
@@ -125,7 +125,7 @@ Assuming cert.json contains:
 ```
 Executing following command
 ```
-java -jar eidaspsd.jar create --json=../doc/certificates/cert.json --passphrase=Welcome123
+java -jar ./bin/eidaspsd.jar create --json=./doc/certificates/cert.json --passphrase=Welcome123
 ```
 Generates following output
 ```
@@ -146,7 +146,7 @@ zrE1FjcC+B4trR5n2RNpJ7khr+hQ2nFEXjKVGrk9WNZux1gTzzpqxP0=
 ```
 User --key and/or --cert options to store private key and certificate to files. I.e.:
 ```
-java -jar eidaspsd.jar create --json=../doc/certificates/cert.json --passphrase=Welcome123 --key=/tmp/key.pem --cert=/tmp/cert.pem
+java -jar ./bin/eidaspsd.jar create --json=./doc/certificates/cert.json --passphrase=Welcome123 --key=/tmp/key.pem --cert=/tmp/cert.pem
 ```
 
 
@@ -156,7 +156,10 @@ java -jar eidaspsd.jar create --json=../doc/certificates/cert.json --passphrase=
 ## Show contents of the certificate
 
 ```
-java -jar eidaspsd.jar show --cert=../doc/certificates/gennedcert.pem
+java -jar ./bin/eidaspsd.jar show --cert=./doc/certificates/gennedcert.pem
+```
+
+```
 {
   "certInfo": {
     "basicConstraints": "CA: true",
@@ -181,7 +184,10 @@ java -jar eidaspsd.jar show --cert=../doc/certificates/gennedcert.pem
 ## Edit psd2 fields and sign new certificate with a private key
 
 ```
-java -jar eidaspsd.jar set --cert=../doc/certificates/gennedcert.pem --key=../doc/certificates/key.pem --passphrase=Welcome123 --roles=PSP_PI --ncaname=ncaname --ncaid=ncaid
+java -jar ./bin/eidaspsd.jar set --cert=./doc/certificates/gennedcert.pem --key=./doc/certificates/key.pem --passphrase=Welcome123 --roles=PSP_PI --ncaname=ncaname --ncaid=ncaid
+```
+
+```
 -----BEGIN CERTIFICATE-----
 MIID0DCCArigAwIBAgIEb8KUejANBgkqhkiG9w0BAQUFADCBlDELMAkGA1UEBhMC
 REUxDzANBgNVBAgMBkhlc3NlbjESMBAGA1UEBwwJRnJhbmtmdXJ0MRUwEwYDVQQK
@@ -209,7 +215,10 @@ FyPdGiDSA/7uEXmrsNve4ity11k=
 
 ## Verify edited values
 ```
- java -jar eidaspsd.jar show --cert=/tmp/cert.pem
+java -jar ./bin/eidaspsd.jar show --cert=/tmp/cert.pem
+```
+
+```
 {
   "certInfo": {
     "basicConstraints": "CA: true",
@@ -233,7 +242,7 @@ FyPdGiDSA/7uEXmrsNve4ity11k=
 
 ## Set up/overwrite organizationIdentifier/2.5.4.97
 ```
-java -jar eidaspsd.jar set --cert=../doc/certificates/gennedcert.pem --key=../doc/certificates/key.pem  --passphrase=Welcome123 --roles=PSP_PI --ncaname=ncaname --ncaid=ncaid --organizationidentifier=PSDES-BDE-3DFD21
+java -jar ./bin/eidaspsd.jar set --cert=./doc/certificates/gennedcert.pem --key=./doc/certificates/key.pem  --passphrase=Welcome123 --roles=PSP_PI --ncaname=ncaname --ncaid=ncaid --organizationidentifier=PSDES-BDE-3DFD21
 ```
 ## Specifying password
 Options --passphrase, --phassphrase:env and --passphrase:prompt let you specify passphase either in command line or in an environment variable or ask for it interactively. If more than one passphrase option is specified, the precedence is: 
