@@ -464,7 +464,7 @@ assertEquals(keyPem, "-----BEGIN RSA PRIVATE KEY-----" +
 			"{" + 
 			"  \"certInfo\": {" + 
 			"    \"basicConstraints\": \"CA: true\"," + 
-			"    \"subject\": \"emailAddress\\u003dca@test.de, CN\\u003dAuthority CA Domain Name, OU\\u003dIT, O\\u003dAuthority CA, L\\u003dFrankfurt, ST\\u003dHessen, C\\u003dDE\"," +
+			"    \"subject\": \"emailAddress\\u003dca@test.de, CN\\u003dAuthority CA Domain Name, OU\\u003dIT, O\\u003dAuthority CA, L\\u003dFrankfurt, ST\\u003dHessen, C\\u003dDE, OID.2.5.4.97\\u003dPSDES-BDE-3DFD21\"," +
 			"    \"issuer\": \"C\\u003dUK, L\\u003dLondon, O\\u003dExco PLC, OU\\u003dCA Services/Interm Desk, CN\\u003dExco-Interm-CA\","+
 			"    \"validFrom\": 1543573407000," + 
 			"    \"expiryDate\": 1559740306000," + 
@@ -512,24 +512,23 @@ assertEquals(keyPem, "-----BEGIN RSA PRIVATE KEY-----" +
 	
 		
 		String csrPem = "-----BEGIN CERTIFICATE REQUEST-----\n" + 
-				"MIIDPzCCAicCAQAwgZQxGTAXBgkqhkiG9w0BCQEWCmNhQHRlc3QuZGUxITAfBgNV\n" + 
-				"BAMMGEF1dGhvcml0eSBDQSBEb21haW4gTmFtZTELMAkGA1UECwwCSVQxFTATBgNV\n" + 
-				"BAoMDEF1dGhvcml0eSBDQTESMBAGA1UEBwwJRnJhbmtmdXJ0MQ8wDQYDVQQIDAZI\n" + 
-				"ZXNzZW4xCzAJBgNVBAYTAkRFMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKC\n" + 
-				"AQEAl/Dx9JIcreIutRf9ykknHHNjUivROPCM2cFxFe0sLDlr7jmPXFHGg/UX9O8a\n" + 
-				"Q81ADi4BoLVnlwK23Wj81zMupok5a+ahP/wIMSq7rn9HPkKZUmgKTDA77dvOLRpH\n" + 
-				"C1l9fSGriAr5tVGCURugwK59gVQDGrxF5L1PgwOBEg4inuVqOVF2Vi7tFnop+Vpo\n" + 
-				"A/ZZJYbkjg08KnKeEYDgJmQYeRN2Se33+/gltAda/wexUzldWJPHeco8exNWPi6j\n" + 
-				"cg8cEkyFsew7ndY0+BKYZgGF3OofHzncRx4cbO0zVnguyiQZdOlXWdv2cV1KuIre\n" + 
-				"MNhqtdMf1QMupkaM604BDMo0NwIDAQABoGUwYwYJKoZIhvcNAQkOMVYwVDBSBggr\n" + 
-				"BgEFBQcBAwRGMEQwQgYGBACBmCcCMDgwJjARBgcEAIGYJwEBDAZQU1BfQVMwEQYH\n" + 
-				"BACBmCcBAgwGUFNQX1BJDAduY2FuYW1lDAVuY2FpZDANBgkqhkiG9w0BAQsFAAOC\n" + 
-				"AQEAI51wCgPZkqeAHsyA69SLI2Ar5o/NLeuCo6qoIXpsl950MBxmq4Zs2oyWuA1M\n" + 
-				"6iqPB2GzSvqopXrA/M8SxSEs4EaJfmcxESYQUC7Vi3Bia1WSWtfkyPSSYkFwsaV9\n" + 
-				"4VLkKpZPts9RtHMdOYxR80IPqciHuqU6+LrXMa/j7qIYf6kUG4sGKH3/kHDiVyYs\n" + 
-				"O2s5hb8kOycIAkYNj0kHBmoETd7W3tU9P5emK1C5s0PRbj4ujIjMQrsPDd+FXYty\n" + 
-				"xtd8HUAYAjXLdkHY8POK5qoeNWlJDwMZo3IWjzI3gfQc8Q4jtwDq+sBPW/vR0WL9\n" + 
-				"sUZFEKp8LPcO5ZQngSR1QyMdRA==\n" + 
+				"MIIDJDCCAgwCAQAwejERMA8GA1UEYQwIMTIzNDU5ODcxEjAQBgNVBAcMCU51cmVt\n" + 
+				"YmVyZzEPMA0GA1UECAwGQmF5ZXJuMRAwDgYDVQQGEwdHZXJtYW55MQswCQYDVQQL\n" + 
+				"DAJvdTEMMAoGA1UECgwDb3JnMRMwEQYDVQQDDApkb21haW5OYW1lMIIBIjANBgkq\n" + 
+				"hkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAlfTKcv2bmQ8J7bJoD3rgoYMWSbhtgmd4\n" + 
+				"X876ThUiY2FO2fDaGYVC2mF6/DSHTtayAQpa0mipIK56UfAqdOVqgWDDylOOLs/n\n" + 
+				"f+R0J3ccmSibhC+949v5SI2/iuw0VQhvswi+P5ZKv9nhfl4Gyp7l+8zKtl0NSHOE\n" + 
+				"PfpV/KxI3ZOQ9srpi1joiX9/R8u/1T4L9QTFIq62GoBcF2pPBrQK5k2nRnMReahi\n" + 
+				"vMznNIAQK4bqdKfJAhjrXM3hYoPILe5uV6f46eNJMsTRIucJ2iQorwwVIxVCKx6F\n" + 
+				"klb1jb3QfuFdlbM/nImZIuTGQXskYrMiqaom5aXm3p0ovOAJ3HT0twIDAQABoGUw\n" + 
+				"YwYJKoZIhvcNAQkOMVYwVDBSBggrBgEFBQcBAwRGMEQwQgYGBACBmCcCMDgwJjAR\n" + 
+				"BgcEAIGYJwEBDAZQU1BfQVMwEQYHBACBmCcBAgwGUFNQX1BJDAduY2FuYW1lDAVu\n" + 
+				"Y2FpZDANBgkqhkiG9w0BAQsFAAOCAQEADty06i9b5zrqa/MCiT//uRrklX02RnpQ\n" + 
+				"gQAdYqVEzGJH2rqT0cJ6KUtYjO8J60SC4yTiV1+p8lSxUHvS146VU8uEEZO486pG\n" + 
+				"ajj6zsdwQDs+uK50uvigNaGTO9Hu5me7F+x2BqDsMlpizJqmqI2W67Sq5MsIaVfF\n" + 
+				"031MOVujtC9e/J4n2Hb66lCHat8mRD4bvQqdp07XHpqRDJaFQiz9XIMfjooafhPL\n" + 
+				"tX4e8OZP+hm7SjILz5ksrW7vqaRcUa8SJCAqHnezY900NOj7hxNYP71I8aZuE56p\n" + 
+				"6iPPQQhrDSIhLvnnrrAhW/UkX1i6j2qbLEt79R4Wr/KKUsBlWHksDQ==\n" + 
 				"-----END CERTIFICATE REQUEST-----";
 		
 		EiDASCertificate eidascert = new EiDASCertificate();

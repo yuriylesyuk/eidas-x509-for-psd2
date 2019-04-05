@@ -607,7 +607,7 @@ public class EiDASCertificate {
 	
 		
 		PKCS10CertificationRequestBuilder p10Builder = new JcaPKCS10CertificationRequestBuilder(
-				new X500Name( issuerDN ), 
+				new X500Name( replaceOverrides( subjectDN ) ), 
 		    	keyPair.getPublic()
 		);
 		
