@@ -6,12 +6,14 @@ import java.nio.file.Paths;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
+import java.security.PublicKey;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.concurrent.Callable;
 
 import org.bouncycastle.operator.OperatorCreationException;
+import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -63,7 +65,15 @@ import picocli.CommandLine.Option;
     @Option(names = "--cert", required = false, description = "optional to save certificate into file in pem format")
     String certFile;
 
-    @Option(names = "--key", required = false, description = "optional to save private key into file in pem format")
+
+    @Option(names = "--csr", required = false, description = "optional to create certificate request into file in pem format")
+    String csrFile;
+
+
+    @Option(names = "--genrsa", required = false, description = "if used, makes operation generate rsa key and save it to the file --key <filename>, if omitted, --key should containg reference to valid rsa pem key.")
+    boolean genRsa;
+
+    @Option(names = "--key", required = false, description = "to provide private key file or to save private key into file in pem format if -genrsa used")
     String keyFile;
 
 
@@ -88,20 +98,51 @@ import picocli.CommandLine.Option;
 		
 		EiDASCertificate eidascert = new EiDASCertificate();
 		
-		KeyPair keyPair = eidascert.genKeyPair();
 		
+		KeyPair keyPair = null;
 		
-		String keyPem = eidascert.privateKeyPem( keyPair, passphrase );
+		if( genRsa ) {
+			// generate a new RSA key; use --key to save it, if present, otherwise output it to the stdout
+			
+			keyPair = eidascert.genKeyPair();
+			
+			String keyPem = eidascert.privateKeyPem( keyPair, passphrase );
+			EiDASCertificateCLI.outputStringToFile( keyFile, keyPem );
+			
+		}else {
+			// load an RSA key from --key file 
+			String keyPem = new String(Files.readAllBytes(Paths.get( keyFile )) );
+			keyPair = eidascert.getKeyPair( keyPem, passphrase );
+		}
 		
-		EiDASCertificateCLI.outputStringToFile( keyFile, keyPem );
-		
-		
-		X509Certificate cert = eidascert.createFromJson(json, keyPair);
-		
-		String certPem = eidascert.writePem( cert );
-
-		EiDASCertificateCLI.outputStringToFile( certFile, certPem );
-
+		if( csrFile == null) {
+			// certificate 
+			// -- cert as file to save certificate
+			
+			X509Certificate cert = eidascert.createCertificateFromJson(json, keyPair.getPrivate(), keyPair.getPublic());
+			
+			String certPem = eidascert.writeCertPem( cert );
+	
+			EiDASCertificateCLI.outputStringToFile( certFile, certPem );
+		}else if( certFile == null) {
+			// certification request
+			PKCS10CertificationRequest csr = eidascert.createCertificationRequestFromJson( json, keyPair );
+			
+			String csrPem = eidascert.writeCSRPem(csr);
+						
+			EiDASCertificateCLI.outputStringToFile( csrFile, csrPem );
+		}else {
+			// interpret as csr sign request
+			//  -- csr as existing request
+			//  -- cert as file to save generated certificate
+			PublicKey publicKey =  eidascert.getPublicKeyFromCSRPem( new String(Files.readAllBytes(Paths.get( csrFile ))) );
+			
+			X509Certificate cert = eidascert.createCertificateFromJson(json, keyPair.getPrivate(), publicKey );
+			
+			String certPem = eidascert.writeCertPem( cert );
+			
+			EiDASCertificateCLI.outputStringToFile( certFile, certPem );
+		}
 
 		return null;
     }
@@ -168,9 +209,9 @@ import picocli.CommandLine.Option;
     }
 }
 	
-@Command(description = "Utility to show contents of a certificate with eiDAS/PSD2 attributes (including roles) and ability to set them.",
-	name = "java -jar ospr.jar", mixinStandardHelpOptions = true, 
-	version = "iedaspsd 1.0",
+@Command(description = "Utility to show contents of a certificate with eIDAS/PSD2 attributes (including roles) and ability to set them.",
+	name = "eidaspsd", mixinStandardHelpOptions = true, 
+	version = "eidaspsd 1.0",
 	subcommands = {
 			HelpCommand.class,
 		    Show.class,

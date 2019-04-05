@@ -1,0 +1,19 @@
+{ 
+  "certInfo": { 
+    "basicConstraints": "CA: true", 
+    "subject": "emailAddress=ca@test.de, CN=Authority CA Domain Name, OU=IT, O=Authority CA, L=Frankfurt, ST=Hessen, C=DE",
+    "issuer": "C=UK, L=London, O=Exco PLC, OU=CA Services/Interm Desk, CN=Exco-Interm-CA",
+    "validFrom": 1543573407000, 
+    "expiryDate": 1559740306000, 
+    "isValid": "<TODO>", 
+    "publicKey": "RSA, 2048", 
+    "serialNumber": 1875022970, 
+    "sigAlgName": "SHA1withRSA", 
+    "version": 3, 
+    "fingerprintSha256": "8345ed6b67056bb641e6ccac5a0579acdf80663de59f7b92f561b66bb6d8876b", 
+    "fingerprintSha1": "cc1adb500568facbff32b475161936dc5becfc4b", 
+    "ncaName": "ncaname", 
+    "ncaId": "ncaid", 
+    "rolesOfPSP": ["PSP_AS","PSP_PI"] 
+  } 
+}

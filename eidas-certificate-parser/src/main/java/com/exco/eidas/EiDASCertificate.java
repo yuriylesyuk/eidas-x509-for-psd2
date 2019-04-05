@@ -2,6 +2,8 @@ package com.exco.eidas;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
@@ -23,6 +25,8 @@ import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPrivateCrtKey;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.RSAPublicKeySpec;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
@@ -45,6 +49,8 @@ import org.bouncycastle.asn1.ASN1OctetString;
 import org.bouncycastle.asn1.ASN1Sequence;
 import org.bouncycastle.asn1.DERSequence;
 import org.bouncycastle.asn1.DERUTF8String;
+import org.bouncycastle.asn1.pkcs.CertificationRequest;
+import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.asn1.x500.AttributeTypeAndValue;
 import org.bouncycastle.asn1.x500.RDN;
@@ -53,7 +59,9 @@ import org.bouncycastle.asn1.x500.X500NameBuilder;
 import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.asn1.x509.BasicConstraints;
 import org.bouncycastle.asn1.x509.Extension;
+import org.bouncycastle.asn1.x509.ExtensionsGenerator;
 import org.bouncycastle.asn1.x509.RSAPublicKeyStructure;
+import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
 import org.bouncycastle.asn1.x509.X509Extension;
 import org.bouncycastle.asn1.x509.qualified.QCStatement;
 import org.bouncycastle.cert.CertIOException;
@@ -68,6 +76,7 @@ import org.bouncycastle.crypto.params.RSAKeyParameters;
 import org.bouncycastle.crypto.params.RSAPrivateCrtKeyParameters;
 import org.bouncycastle.crypto.prng.EntropySource;
 import org.bouncycastle.crypto.util.PrivateKeyInfoFactory;
+import org.bouncycastle.crypto.util.PublicKeyFactory;
 import org.bouncycastle.jcajce.provider.asymmetric.rsa.BCRSAPublicKey;
 import org.bouncycastle.jcajce.provider.asymmetric.rsa.RSAUtil;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -86,8 +95,12 @@ import org.bouncycastle.openssl.jcajce.JcePEMEncryptorBuilder;
 import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
+import org.bouncycastle.pkcs.PKCS10CertificationRequest;
+import org.bouncycastle.pkcs.PKCS10CertificationRequestBuilder;
+import org.bouncycastle.pkcs.jcajce.JcaPKCS10CertificationRequestBuilder;
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemObjectGenerator;
+import org.bouncycastle.util.io.pem.PemReader;
 import org.bouncycastle.util.io.pem.PemWriter;
 
 import com.google.common.hash.Hashing;
@@ -334,7 +347,7 @@ public class EiDASCertificate {
 	
 	
 	
-	public String writePem( X509Certificate cert ) {
+	public String writeCertPem( X509Certificate cert ) {
 	
 		StringWriter sw = new StringWriter();
 	
@@ -345,10 +358,8 @@ public class EiDASCertificate {
 			pw.writeObject(gen);
 		  
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 
-		
+			e.printStackTrace();
 		}
 	
 		return sw.toString();
@@ -462,7 +473,7 @@ public class EiDASCertificate {
 		
 	}
 
-	private KeyPair getKeyPair( String pemRSAPrivateKey, String password) {
+	protected KeyPair getKeyPair( String pemRSAPrivateKey, String password) {
 		
 		
 		BufferedReader br = new BufferedReader( new InputStreamReader( new ByteArrayInputStream( pemRSAPrivateKey.getBytes() ) ) );
@@ -506,6 +517,39 @@ public class EiDASCertificate {
 	}
 	
 	
+	public PublicKey getPublicKeyFromCSRPem( String csrPem ) throws IOException {
+		
+		PublicKey rsaPublicKey = null;
+		PemReader reader = null;
+		
+		try{ 
+			reader = new PemReader( new BufferedReader( new InputStreamReader( new ByteArrayInputStream( csrPem.getBytes() ) ) ) );
+			
+			final PKCS10CertificationRequest csr = new PKCS10CertificationRequest(reader.readPemObject().getContent());
+			
+			SubjectPublicKeyInfo pkInfo = csr.getSubjectPublicKeyInfo();
+			RSAKeyParameters rsa = (RSAKeyParameters) PublicKeyFactory.createKey(pkInfo);
+			
+			RSAPublicKeySpec rsaSpec = new RSAPublicKeySpec(rsa.getModulus(), rsa.getExponent());
+			KeyFactory kf = KeyFactory.getInstance("RSA");
+			rsaPublicKey = kf.generatePublic(rsaSpec);
+			
+		}catch(FileNotFoundException e) {
+			throw new RuntimeException( e );
+		} catch (IOException e) {
+			throw new RuntimeException( e );
+		} catch (NoSuchAlgorithmException e) {
+			throw new RuntimeException( e );
+		} catch (InvalidKeySpecException e) {
+			throw new RuntimeException( e );
+		}finally {
+			reader.close();
+		}
+		
+	    return rsaPublicKey;
+	}
+	
+	
 	private QCStatement qcStatementForRoles( 
 			String ncaName,
 			String ncaId,
@@ -534,10 +578,118 @@ public class EiDASCertificate {
 	    return new QCStatement(oid_etsi_psd2_qcStatement, st);
 	}
 	
+	// TODO: refactor with XREF:createCertificateFromJson
+	// XXXXXXXXXXX
+
+	public PKCS10CertificationRequest createCertificationRequestFromJson(
+			String json, 
+			KeyPair keyPair
+	) throws OperatorCreationException, IOException {
+		
+		/// C&P section:
+		JsonObject certdesc = (new JsonParser()).parse( json ).getAsJsonObject();
+		
+		JsonObject certinfo = certdesc.getAsJsonObject("certInfo");
+	
+		
+	 
+		
+		String issuerDN = certinfo.get("issuer").getAsString();
+		String subjectDN = certinfo.get("subject").getAsString();
+		
+		long notBefore = certinfo.get("validFrom").getAsLong() / 1000L;;
+		long notAfter = certinfo.get("expiryDate").getAsLong() / 1000L;;
+
+		BigInteger serialNumber = certinfo.get("serialNumber").getAsBigInteger();
+		/// C&P section: EOS
+		
+	
+	
+		
+		PKCS10CertificationRequestBuilder p10Builder = new JcaPKCS10CertificationRequestBuilder(
+				new X500Name( issuerDN ), 
+		    	keyPair.getPublic()
+		);
+		
+		
+		/// C&P section, psd2 attributes:
+		String ncaName = certinfo.get("ncaName").getAsString();
+		String ncaId =  certinfo.get("ncaId").getAsString();
+		
+		
+		List<String> rolesList = new ArrayList<String>();
+		
+		JsonArray roles = certinfo.get("rolesOfPSP").getAsJsonArray();
+		for( JsonElement r: roles) {
+			rolesList.add( r.getAsString() );
+		}
+
+	    QCStatement qcst = qcStatementForRoles( ncaName, ncaId, rolesList );
+	    
+	    final ASN1EncodableVector qcsts = new ASN1EncodableVector();
+	    qcsts.add(qcst);
+		/// C&P section: EOS
+		
+		ExtensionsGenerator extensionGenerator = new ExtensionsGenerator();
+		
+		
+		
+		
+		extensionGenerator.addExtension(oid_QCStatements, false,
+				new DERSequence(qcsts) 
+		);
+		
+		p10Builder.addAttribute(PKCSObjectIdentifiers.pkcs_9_at_extensionRequest, extensionGenerator.generate());
+
+		
+		
+		JcaContentSignerBuilder csBuilder = new JcaContentSignerBuilder("SHA256withRSA");
+		
+		ContentSigner signer = csBuilder.build( keyPair.getPrivate() );
+
+		
+		
+		
+		
+		PKCS10CertificationRequest csr = p10Builder.build(signer);
+		
+		return csr;
+	}
+
+	
+	
+	// TODO: refactor with writePem
+	// XXXXXXXXXXX
+	public String writeCSRPem( PKCS10CertificationRequest csr) {
+
+		/// C&P section, sw, pw:
+
+	    StringWriter sw = null;
+	    
+	    try( PemWriter pw = new JcaPEMWriter( sw = new StringWriter()) ) {
+	    	
+	    	PemObjectGenerator gen;
+	    	gen = new JcaMiscPEMGenerator( csr );
+	    	
+	        pw.writeObject( gen );
+		} catch (IOException e) {
+
+			e.printStackTrace();
+		}
+		/// C&P section, sw, pw: EOS
+
+	    return sw.toString();
+	}
+	
+	
+	
 	
 	private X509Certificate genCertificate( 
 				X509Certificate cert ,
-				KeyPair keyPair,
+				
+				PrivateKey privateKey,
+				PublicKey publicKey,
+				
 				String organizationIdentifier,
 				String ncaName,
 				String ncaId,			
@@ -561,7 +713,7 @@ public class EiDASCertificate {
 					certholder.getNotBefore(),
 					certholder.getNotAfter(),
 					( organizationIdentifier == null )? certholder.getSubject() : replaceOrganizationIdentifier( certholder.getSubject(), organizationIdentifier ),
-				    keyPair.getPublic()
+				    publicKey
 			);
 			
 
@@ -594,7 +746,7 @@ public class EiDASCertificate {
 		    
 		    		    
 			
-			ContentSigner sigGen = new JcaContentSignerBuilder("SHA1withRSA").build(keyPair.getPrivate());
+			ContentSigner sigGen = new JcaContentSignerBuilder("SHA1withRSA").build( privateKey );
 	
 		    X509CertificateHolder newcert = builder.build(sigGen);
 		
@@ -639,7 +791,7 @@ public class EiDASCertificate {
 		
 		X509Certificate newcert=null;
 		try {
-			newcert = eidascert.genCertificate( cert,  kp, organizationIdentifier, ncaname, ncaid, roles );
+			newcert = eidascert.genCertificate( cert,  kp.getPrivate(), kp.getPublic(), organizationIdentifier, ncaname, ncaid, roles );
 		} catch (CertIOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -655,7 +807,7 @@ public class EiDASCertificate {
 //			e.printStackTrace();
 //		}
 		
-		String certpem = eidascert.writePem( newcert );
+		String certpem = eidascert.writeCertPem( newcert );
 		
 		return certpem;
 	}	
@@ -719,8 +871,15 @@ public class EiDASCertificate {
 		
 	}
 	
-	
-	public X509Certificate createFromJson( String json, KeyPair keyPair) throws OperatorCreationException, CertIOException, CertificateException {
+	// TODO: refactor with XREF:createCertificateFromJson
+	// XXXXXXXXXXX
+
+	public X509Certificate createCertificateFromJson( 
+			String json, 
+
+			PrivateKey privateKey,
+			PublicKey publicKey
+		) throws OperatorCreationException, CertIOException, CertificateException {
 		
 		JsonObject certdesc = (new JsonParser()).parse( json ).getAsJsonObject();
 		
@@ -744,7 +903,7 @@ public class EiDASCertificate {
 				Date.from( Instant.ofEpochSecond( notBefore ) ),
 				Date.from( Instant.ofEpochSecond( notAfter ) ),
 				new X500Name( replaceOverrides( subjectDN ) ),
-			    keyPair.getPublic()
+			    publicKey
 		);
 		 
 		boolean isCA = isCACertificate( certinfo.get("basicConstraints").getAsString() );
@@ -770,7 +929,7 @@ public class EiDASCertificate {
 	    certbuilder.addExtension(oid_QCStatements, false,  new DERSequence(qcsts) );
 		   
 		   
-		ContentSigner signer =  new JcaContentSignerBuilder("SHA1withRSA").build(keyPair.getPrivate());;
+		ContentSigner signer =  new JcaContentSignerBuilder("SHA1withRSA").build( privateKey );;
 		
 		
 		

@@ -1,4 +1,4 @@
-# Edge Java Callout: eiDAS/PSD2 Certificate Parser
+# Edge Java Callout: eIDAS/PSD2 Certificate Parser
 
 The proxy bundle is ready for deployment. You don't need to compile it in order to use it.
 
@@ -39,7 +39,7 @@ Configure the policy like this:
 </JavaCallout>
 ```
 
-Within the Properties, you can specify the input and output for the eiDAS callout.
+Within the Properties, you can specify the input and output for the eIDAS callout.
 
 | name             | required | meaning                                 |
 | ---------------- | -------- | ----------------------------------------|
@@ -97,7 +97,7 @@ $ curl -H 'SSL_CLIENT_CERT: -----BEGIN CERTIFICATE-----\nMIIECDCCAvCgAwIBAgIEb8K
 
 # eidaspsd cli utility
 
-The /bin/eidaspsd utility supports collection of operations to facilitate management of eiDAS/PSD2 certificates. Due to the fact that eiDAS statements are qcExtentions in the ASN.1 format, it is not possible to see or manipulate its contents with most of the utilities, ie, openssl, cfssl, keytool, etc.
+The /bin/eidaspsd utility supports collection of operations to facilitate management of eIDAS/PSD2 certificates. Due to the fact that eIDAS statements are qcExtentions in the ASN.1 format, it is not possible to see or manipulate its contents with most of the utilities, ie, openssl, cfssl, keytool, etc.
 
 Using the utility, you can now display salient fields of a certficiate and change/set up PSD2 fields.
 

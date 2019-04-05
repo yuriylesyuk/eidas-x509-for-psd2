@@ -22,6 +22,7 @@ import java.util.List;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.operator.OperatorCreationException;
+import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -34,60 +35,63 @@ public class EiDASCertificateTest {
 	@Before
 	public void testSetup() {
 		
-		c = "-----BEGIN CERTIFICATE-----\\n"
-				+ "MIIECDCCAvCgAwIBAgIEb8KUejANBgkqhkiG9w0BAQsFADCBlDELMAkGA1UEBhMC\\n"
-				+ "REUxDzANBgNVBAgMBkhlc3NlbjESMBAGA1UEBwwJRnJhbmtmdXJ0MRUwEwYDVQQK\\n"
-				+ "DAxBdXRob3JpdHkgQ0ExCzAJBgNVBAsMAklUMSEwHwYDVQQDDBhBdXRob3JpdHkg\\n"
-				+ "Q0EgRG9tYWluIE5hbWUxGTAXBgkqhkiG9w0BCQEWCmNhQHRlc3QuZGUwHhcNMTgx\\n"
-				+ "MTEzMDk0MjU4WhcNMTgxMTMwMTAyMzI3WjB6MRMwEQYDVQQDDApkb21haW5OYW1l\\n"
-				+ "MQwwCgYDVQQKDANvcmcxCzAJBgNVBAsMAm91MRAwDgYDVQQGEwdHZXJtYW55MQ8w\\n"
-				+ "DQYDVQQIDAZCYXllcm4xEjAQBgNVBAcMCU51cmVtYmVyZzERMA8GA1UEYQwIMTIz\\n"
-				+ "NDU5ODcwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCygUI6R+8LEMgB\\n"
-				+ "4mVPKCq9a7AW1UuTXSXb4/GehFi+fWmcaUCUqrLamPUZKEelW2LZ92dSb/uFKA56\\n"
-				+ "YpI0kEcEwjE0DUl/7oZsdPKeSxPfixOpuj9m3V3VZIDbYxgKjnaxWHkobXCIzhHp\\n"
-				+ "7AQ6cMpPY7i4O+IXK4bY4cqImW/jBiHhV1tkAHCrRyQgb9aRDFN1CqyUdL9XBzC7\\n"
-				+ "oO/GdVlfJPX8YlQz9Dd9PrXL0ORsvms2wRArVFgiDIPNcgJKGIOigHTzb66WIutu\\n"
-				+ "mBYrMcObXf+9Mb7q2KUeRFizKlO7t9H3vDmKi+nYJLNXDbJLf6+kRJj5EfMOP/MG\\n"
-				+ "XGluValZAgMBAAGjezB5MHcGCCsGAQUFBwEDBGswaTBnBgYEAIGYJwIwXTBMMBEG\\n"
-				+ "BwQAgZgnAQEMBlBTUF9BUzARBgcEAIGYJwECDAZQU1BfUEkwEQYHBACBmCcBAwwG\\n"
-				+ "UFNQX0FJMBEGBwQAgZgnAQQMBlBTUF9JQwwEQXV0aAwHR2VybWFueTANBgkqhkiG\\n"
-				+ "9w0BAQsFAAOCAQEAesGPHrsobCiPqA49tYzDpgWFm33C+9bTqisRd07bCjWWKLpw\\n"
-				+ "ZsQjxZqTUVSaHedXjxF92JdWgcTtW2jhjYIiEixfaUkoEgpqPfPhDTuqpdw2dD2z\\n"
-				+ "/N0bdVuxIhxatwA/4Dh0zMO0e3GTmK0iMcRczaPuiCQiDuEaoKy+ZpDzdGfrsmDx\\n"
-				+ "5wKhIdJ/HoV/fi3gjnUcBUFI3n9MZxinPfIvbouHkRpBtyN8T25NGdpKgLX5P3l9\\n"
-				+ "yE+a+3BoVXBsDgmkuf5pkcagyWC53vZRwceBKEaRzVELmL+/9ftRm6d/DT54tCiR\\n"
-				+ "Q1q2Ca1AIXrpFAoDBAvqtQb4lyPnG6BJcwYBUg==\\n"
-				+ "-----END CERTIFICATE-----\\n";
 		
-		k = "-----BEGIN RSA PRIVATE KEY-----\n" + 
-				"Proc-Type: 4,ENCRYPTED\n" + 
-				"DEK-Info: AES-256-CBC,CEB76431E65244905C479719951EBC9F\n" + 
-				"\n" + 
-				"Hzg6p4bRR7Vk/Re/8R/zpvA9pFaJ/TG2UXhsax/cjvsgfs49zpCDyfczhEcOSpyA\n" + 
-				"wycYYlXj4StGKybOfYbUn8H50pWvMi/7m+UL0lUw9Z5BrNlr8p/8FQPYTdOdEkv8\n" + 
-				"WNtSQcpZSSyZCDi18Gqshz44Y2HZrWqnO0ODV/dQ60DP1nWh+vGNNVC93fY7FQWb\n" + 
-				"J17qdPL9FcX6Frm7To0528WUjY1VnwbNxeNOEeNDHRwGJRFQcwXfCa++2cMjOx2q\n" + 
-				"qBvHBShcutd07hDiu2Y4pIPfAOCGcletNXLfZGgNCdHOT6uzY4BrVYmLGje2tYay\n" + 
-				"NcOMuDY0pZOKlsbCJ+pT+hXxf9s7Kh7SFBX+EgkdcgGR0Yf+US8LQ8RFoE6m8O+/\n" + 
-				"G/wls6IgdbWd2+oXx208SPgecWu9NwtnjT9FbCFedPuq/YXwz+WtmtkpsixpPQSJ\n" + 
-				"PujE1l9qWUFDqe4crKVgnoiYjQEEihWm0HWrw/PKA2qBDJdi37MjJeWw2N+NdgAF\n" + 
-				"rUM32juUnZiaejKMOnterZWwENAjY6EhfLM7hx2pecU548C+x2T6uIRfNQsKHWk9\n" + 
-				"B4qftnjZbX7efygIRLUGWJF/4tnmx7lHq0cZyRV3E8k6b5b7GSSfnYuRZzjliiUd\n" + 
-				"euUq2EzsMWPA6eQBK63j2+aXRyVep8SMINIkj/Usx6NJadbFl2h7hvAVk62ThfZ5\n" + 
-				"YXctzniwrbFVuuaty8vbK3fpxITk1iSjam/A404ZYqBr//AGWv9hdZM1nP5bo3bO\n" + 
-				"HULWoA7DSz3mxOqRb72KI/CGmB9tDKH+Nw5JiArT/Y/V5lS4HzyoMP+6HD0JoKa7\n" + 
-				"e7IfVlwoKVdUY//02mj9zMn4zjiBvzFjAJQx5QqgtOc61e5P6uO5MilLsx5rsu/U\n" + 
-				"B8bsJR0LFhSrwF+D79o5ht4Yh15yzztX+peJ3kjfSE8ileLAvH1QhtFgk7AdA5Yf\n" + 
-				"BTmWKI6OIKNucqGqsAMJ+zTN4WO2yFAgZpQgdNQ3TxaWqCvOzNXbttgaprAgQln/\n" + 
-				"H7gzbKf65rhhavEpFOsaPq3WXqJcwMMkLJAbbNS21Fjd+OrYSoJ3VScfQ5uQxbe1\n" + 
-				"O4Nv0aXOGXuTN23559Hn9uWoF11hOvrSK/Ceu6Rr76and/waa9mbbKVwfnifmL1A\n" + 
-				"OaD3mijfEtfd4FRyo7rEPqHzrMXwUsiUF364iOJ1SFQdUzhL/SEA04wfWkWcyxYo\n" + 
-				"ydKGJzDBtnng0Fe7kKqqK8LK/v9FrFu+IxSeE9wJurKQ39vN5V2Jz6ybfAwTkxx3\n" + 
-				"22TqINaPxPmchQV75FdljIEp/u8cfXJtgCI053MKbPq0QRS0lSskIxqqqyanrNUZ\n" + 
-				"1YaJuH4u5PiVNcHKpJOsPzdnepHc88KitkkyWcXEPiwUzUPZhWcS5b289UbBs7P9\n" + 
-				"b+zQciMvwq8iHJyHtNRcxLyIuclUOw4zpwJ2ztGGOCQI9KctsFxGj6WVXHgOfbn5\n" + 
-				"0yXvQN6JBE8rzd1DBtNhjA0XIgxgrdYhXnrsr+HCOzvAcmCrpMo8y9xbJkOK1drp\n" + 
-				"QTeKuto6sCjopjh9vqQ/T7oIxecA5IAzKKJd4XOb05iyK8YPejQ47tCFcBGG/xP7\n" + 
+		
+		
+		c = "-----BEGIN CERTIFICATE-----" 
+				+ "MIIECDCCAvCgAwIBAgIEb8KUejANBgkqhkiG9w0BAQsFADCBlDELMAkGA1UEBhMC"
+				+ "REUxDzANBgNVBAgMBkhlc3NlbjESMBAGA1UEBwwJRnJhbmtmdXJ0MRUwEwYDVQQK"
+				+ "DAxBdXRob3JpdHkgQ0ExCzAJBgNVBAsMAklUMSEwHwYDVQQDDBhBdXRob3JpdHkg"
+				+ "Q0EgRG9tYWluIE5hbWUxGTAXBgkqhkiG9w0BCQEWCmNhQHRlc3QuZGUwHhcNMTgx"
+				+ "MTEzMDk0MjU4WhcNMTgxMTMwMTAyMzI3WjB6MRMwEQYDVQQDDApkb21haW5OYW1l"
+				+ "MQwwCgYDVQQKDANvcmcxCzAJBgNVBAsMAm91MRAwDgYDVQQGEwdHZXJtYW55MQ8w"
+				+ "DQYDVQQIDAZCYXllcm4xEjAQBgNVBAcMCU51cmVtYmVyZzERMA8GA1UEYQwIMTIz"
+				+ "NDU5ODcwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCygUI6R+8LEMgB"
+				+ "4mVPKCq9a7AW1UuTXSXb4/GehFi+fWmcaUCUqrLamPUZKEelW2LZ92dSb/uFKA56"
+				+ "YpI0kEcEwjE0DUl/7oZsdPKeSxPfixOpuj9m3V3VZIDbYxgKjnaxWHkobXCIzhHp"
+				+ "7AQ6cMpPY7i4O+IXK4bY4cqImW/jBiHhV1tkAHCrRyQgb9aRDFN1CqyUdL9XBzC7"
+				+ "oO/GdVlfJPX8YlQz9Dd9PrXL0ORsvms2wRArVFgiDIPNcgJKGIOigHTzb66WIutu"
+				+ "mBYrMcObXf+9Mb7q2KUeRFizKlO7t9H3vDmKi+nYJLNXDbJLf6+kRJj5EfMOP/MG"
+				+ "XGluValZAgMBAAGjezB5MHcGCCsGAQUFBwEDBGswaTBnBgYEAIGYJwIwXTBMMBEG"
+				+ "BwQAgZgnAQEMBlBTUF9BUzARBgcEAIGYJwECDAZQU1BfUEkwEQYHBACBmCcBAwwG"
+				+ "UFNQX0FJMBEGBwQAgZgnAQQMBlBTUF9JQwwEQXV0aAwHR2VybWFueTANBgkqhkiG"
+				+ "9w0BAQsFAAOCAQEAesGPHrsobCiPqA49tYzDpgWFm33C+9bTqisRd07bCjWWKLpw"
+				+ "ZsQjxZqTUVSaHedXjxF92JdWgcTtW2jhjYIiEixfaUkoEgpqPfPhDTuqpdw2dD2z"
+				+ "/N0bdVuxIhxatwA/4Dh0zMO0e3GTmK0iMcRczaPuiCQiDuEaoKy+ZpDzdGfrsmDx"
+				+ "5wKhIdJ/HoV/fi3gjnUcBUFI3n9MZxinPfIvbouHkRpBtyN8T25NGdpKgLX5P3l9"
+				+ "yE+a+3BoVXBsDgmkuf5pkcagyWC53vZRwceBKEaRzVELmL+/9ftRm6d/DT54tCiR"
+				+ "Q1q2Ca1AIXrpFAoDBAvqtQb4lyPnG6BJcwYBUg=="
+				+ "-----END CERTIFICATE-----";
+		
+		k = "-----BEGIN RSA PRIVATE KEY-----" + 
+				"Proc-Type: 4,ENCRYPTED" + 
+				"DEK-Info: AES-256-CBC,CEB76431E65244905C479719951EBC9F" + 
+				"" + 
+				"Hzg6p4bRR7Vk/Re/8R/zpvA9pFaJ/TG2UXhsax/cjvsgfs49zpCDyfczhEcOSpyA" + 
+				"wycYYlXj4StGKybOfYbUn8H50pWvMi/7m+UL0lUw9Z5BrNlr8p/8FQPYTdOdEkv8" + 
+				"WNtSQcpZSSyZCDi18Gqshz44Y2HZrWqnO0ODV/dQ60DP1nWh+vGNNVC93fY7FQWb" + 
+				"J17qdPL9FcX6Frm7To0528WUjY1VnwbNxeNOEeNDHRwGJRFQcwXfCa++2cMjOx2q" + 
+				"qBvHBShcutd07hDiu2Y4pIPfAOCGcletNXLfZGgNCdHOT6uzY4BrVYmLGje2tYay" + 
+				"NcOMuDY0pZOKlsbCJ+pT+hXxf9s7Kh7SFBX+EgkdcgGR0Yf+US8LQ8RFoE6m8O+/" + 
+				"G/wls6IgdbWd2+oXx208SPgecWu9NwtnjT9FbCFedPuq/YXwz+WtmtkpsixpPQSJ" + 
+				"PujE1l9qWUFDqe4crKVgnoiYjQEEihWm0HWrw/PKA2qBDJdi37MjJeWw2N+NdgAF" + 
+				"rUM32juUnZiaejKMOnterZWwENAjY6EhfLM7hx2pecU548C+x2T6uIRfNQsKHWk9" + 
+				"B4qftnjZbX7efygIRLUGWJF/4tnmx7lHq0cZyRV3E8k6b5b7GSSfnYuRZzjliiUd" + 
+				"euUq2EzsMWPA6eQBK63j2+aXRyVep8SMINIkj/Usx6NJadbFl2h7hvAVk62ThfZ5" + 
+				"YXctzniwrbFVuuaty8vbK3fpxITk1iSjam/A404ZYqBr//AGWv9hdZM1nP5bo3bO" + 
+				"HULWoA7DSz3mxOqRb72KI/CGmB9tDKH+Nw5JiArT/Y/V5lS4HzyoMP+6HD0JoKa7" + 
+				"e7IfVlwoKVdUY//02mj9zMn4zjiBvzFjAJQx5QqgtOc61e5P6uO5MilLsx5rsu/U" + 
+				"B8bsJR0LFhSrwF+D79o5ht4Yh15yzztX+peJ3kjfSE8ileLAvH1QhtFgk7AdA5Yf" + 
+				"BTmWKI6OIKNucqGqsAMJ+zTN4WO2yFAgZpQgdNQ3TxaWqCvOzNXbttgaprAgQln/" + 
+				"H7gzbKf65rhhavEpFOsaPq3WXqJcwMMkLJAbbNS21Fjd+OrYSoJ3VScfQ5uQxbe1" + 
+				"O4Nv0aXOGXuTN23559Hn9uWoF11hOvrSK/Ceu6Rr76and/waa9mbbKVwfnifmL1A" + 
+				"OaD3mijfEtfd4FRyo7rEPqHzrMXwUsiUF364iOJ1SFQdUzhL/SEA04wfWkWcyxYo" + 
+				"ydKGJzDBtnng0Fe7kKqqK8LK/v9FrFu+IxSeE9wJurKQ39vN5V2Jz6ybfAwTkxx3" + 
+				"22TqINaPxPmchQV75FdljIEp/u8cfXJtgCI053MKbPq0QRS0lSskIxqqqyanrNUZ" + 
+				"1YaJuH4u5PiVNcHKpJOsPzdnepHc88KitkkyWcXEPiwUzUPZhWcS5b289UbBs7P9" + 
+				"b+zQciMvwq8iHJyHtNRcxLyIuclUOw4zpwJ2ztGGOCQI9KctsFxGj6WVXHgOfbn5" + 
+				"0yXvQN6JBE8rzd1DBtNhjA0XIgxgrdYhXnrsr+HCOzvAcmCrpMo8y9xbJkOK1drp" + 
+				"QTeKuto6sCjopjh9vqQ/T7oIxecA5IAzKKJd4XOb05iyK8YPejQ47tCFcBGG/xP7" + 
 				"-----END RSA PRIVATE KEY-----";
 		
 		p = "Welcome123";
@@ -132,30 +136,30 @@ public class EiDASCertificateTest {
 		
 	
 		assertEquals( certpem,
-				"-----BEGIN CERTIFICATE-----\n" + 
-				"MIIECDCCAvCgAwIBAgIEb8KUejANBgkqhkiG9w0BAQUFADCBlDELMAkGA1UEBhMC\n" + 
-				"REUxDzANBgNVBAgMBkhlc3NlbjESMBAGA1UEBwwJRnJhbmtmdXJ0MRUwEwYDVQQK\n" + 
-				"DAxBdXRob3JpdHkgQ0ExCzAJBgNVBAsMAklUMSEwHwYDVQQDDBhBdXRob3JpdHkg\n" + 
-				"Q0EgRG9tYWluIE5hbWUxGTAXBgkqhkiG9w0BCQEWCmNhQHRlc3QuZGUwHhcNMTgx\n" + 
-				"MTEzMDk0MjU4WhcNMTgxMTMwMTAyMzI3WjB6MRMwEQYDVQQDDApkb21haW5OYW1l\n" + 
-				"MQwwCgYDVQQKDANvcmcxCzAJBgNVBAsMAm91MRAwDgYDVQQGEwdHZXJtYW55MQ8w\n" + 
-				"DQYDVQQIDAZCYXllcm4xEjAQBgNVBAcMCU51cmVtYmVyZzERMA8GA1UEYQwIMTIz\n" + 
-				"NDU5ODcwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCzezfS9BIdspq9\n" + 
-				"wa4oxGo+aMxBVYOxLR4h/9X4hU/8fnxgq7BIrVKbgeckcjPcRhr+ULeJmkemQJnh\n" + 
-				"wLqlmdAtcmbhU16dKnIAYV9YhIe3HEr1s7LUeKt2qEMyXXQvz9RGFOkceqDqGqSR\n" + 
-				"GwBlRMOmPTvVsVYyzqhSh4SiLFWOO3U4ZZy47ymgSgVvRE+Vg8A3YWkS/605LU6p\n" + 
-				"0IIA1PPg7ym3/8fZ6C8UTXuFIoXn+ukOGiEE9tGHqSr4IrlNtb3fMbRWW/pR109D\n" + 
-				"uNLAqFByjYzR+unbWZ0qCgwVnddIcupGehmnEcNkx8hTLAbdYk4b16cy7RWxoSj0\n" + 
-				"FahPt59zAgMBAAGjezB5MHcGCCsGAQUFBwEDBGswaTBnBgYEAIGYJwIwXTBMMBEG\n" + 
-				"BwQAgZgnAQEMBlBTUF9BUzARBgcEAIGYJwECDAZQU1BfUEkwEQYHBACBmCcBAwwG\n" + 
-				"UFNQX0FJMBEGBwQAgZgnAQQMBlBTUF9JQwwEQXV0aAwHR2VybWFueTANBgkqhkiG\n" + 
-				"9w0BAQUFAAOCAQEAfq57JDdlX9btYBfFl4GLY9mHCBrXV0O4H9DDVJYl+RjO3B3q\n" + 
-				"uzU5SUtWzdOnAvJ28wLe0hvN6oxX/DxD5S/oLP51PFfsygkArxDurbSz2RsfsbcO\n" + 
-				"4mXtw1ChuktKWm/E3u2U0IHDR6KDaT3pr8jlDv5mJnJmTi7hIM3xnz38rn9ok1Qs\n" + 
-				"wTF5vEINaluFOXoSfB4VB+TPro1Tdh6mlS0d01iiUKK/kmIaCTlFMFSCsvW9GqQw\n" + 
-				"KQ0MeAhgrccabZr8+VzbdfMVygHGpiB77yqsYztTSjspPaxltmv5i3IUDUC3MZTK\n" + 
-				"y3m/0/+q+LL+vZsQYpPIREUWa/2cDYiwKFXRxQ==\n" + 
-				"-----END CERTIFICATE-----\n" );
+				"-----BEGIN CERTIFICATE-----" + 
+				"MIIECDCCAvCgAwIBAgIEb8KUejANBgkqhkiG9w0BAQUFADCBlDELMAkGA1UEBhMC" + 
+				"REUxDzANBgNVBAgMBkhlc3NlbjESMBAGA1UEBwwJRnJhbmtmdXJ0MRUwEwYDVQQK" + 
+				"DAxBdXRob3JpdHkgQ0ExCzAJBgNVBAsMAklUMSEwHwYDVQQDDBhBdXRob3JpdHkg" + 
+				"Q0EgRG9tYWluIE5hbWUxGTAXBgkqhkiG9w0BCQEWCmNhQHRlc3QuZGUwHhcNMTgx" + 
+				"MTEzMDk0MjU4WhcNMTgxMTMwMTAyMzI3WjB6MRMwEQYDVQQDDApkb21haW5OYW1l" + 
+				"MQwwCgYDVQQKDANvcmcxCzAJBgNVBAsMAm91MRAwDgYDVQQGEwdHZXJtYW55MQ8w" + 
+				"DQYDVQQIDAZCYXllcm4xEjAQBgNVBAcMCU51cmVtYmVyZzERMA8GA1UEYQwIMTIz" + 
+				"NDU5ODcwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCzezfS9BIdspq9" + 
+				"wa4oxGo+aMxBVYOxLR4h/9X4hU/8fnxgq7BIrVKbgeckcjPcRhr+ULeJmkemQJnh" + 
+				"wLqlmdAtcmbhU16dKnIAYV9YhIe3HEr1s7LUeKt2qEMyXXQvz9RGFOkceqDqGqSR" + 
+				"GwBlRMOmPTvVsVYyzqhSh4SiLFWOO3U4ZZy47ymgSgVvRE+Vg8A3YWkS/605LU6p" + 
+				"0IIA1PPg7ym3/8fZ6C8UTXuFIoXn+ukOGiEE9tGHqSr4IrlNtb3fMbRWW/pR109D" + 
+				"uNLAqFByjYzR+unbWZ0qCgwVnddIcupGehmnEcNkx8hTLAbdYk4b16cy7RWxoSj0" + 
+				"FahPt59zAgMBAAGjezB5MHcGCCsGAQUFBwEDBGswaTBnBgYEAIGYJwIwXTBMMBEG" + 
+				"BwQAgZgnAQEMBlBTUF9BUzARBgcEAIGYJwECDAZQU1BfUEkwEQYHBACBmCcBAwwG" + 
+				"UFNQX0FJMBEGBwQAgZgnAQQMBlBTUF9JQwwEQXV0aAwHR2VybWFueTANBgkqhkiG" + 
+				"9w0BAQUFAAOCAQEAfq57JDdlX9btYBfFl4GLY9mHCBrXV0O4H9DDVJYl+RjO3B3q" + 
+				"uzU5SUtWzdOnAvJ28wLe0hvN6oxX/DxD5S/oLP51PFfsygkArxDurbSz2RsfsbcO" + 
+				"4mXtw1ChuktKWm/E3u2U0IHDR6KDaT3pr8jlDv5mJnJmTi7hIM3xnz38rn9ok1Qs" + 
+				"wTF5vEINaluFOXoSfB4VB+TPro1Tdh6mlS0d01iiUKK/kmIaCTlFMFSCsvW9GqQw" + 
+				"KQ0MeAhgrccabZr8+VzbdfMVygHGpiB77yqsYztTSjspPaxltmv5i3IUDUC3MZTK" + 
+				"y3m/0/+q+LL+vZsQYpPIREUWa/2cDYiwKFXRxQ==" + 
+				"-----END CERTIFICATE-----" );
 	}
 
 
@@ -176,29 +180,29 @@ public class EiDASCertificateTest {
 		
 	
 		assertEquals( certpem,
-				"-----BEGIN CERTIFICATE-----\n" + 
-				"MIID1jCCAr6gAwIBAgIEb8KUejANBgkqhkiG9w0BAQUFADCBlDELMAkGA1UEBhMC\n" + 
-				"REUxDzANBgNVBAgMBkhlc3NlbjESMBAGA1UEBwwJRnJhbmtmdXJ0MRUwEwYDVQQK\n" + 
-				"DAxBdXRob3JpdHkgQ0ExCzAJBgNVBAsMAklUMSEwHwYDVQQDDBhBdXRob3JpdHkg\n" + 
-				"Q0EgRG9tYWluIE5hbWUxGTAXBgkqhkiG9w0BCQEWCmNhQHRlc3QuZGUwHhcNMTgx\n" + 
-				"MTEzMDk0MjU4WhcNMTgxMTMwMTAyMzI3WjCBgjETMBEGA1UEAwwKZG9tYWluTmFt\n" + 
-				"ZTEMMAoGA1UECgwDb3JnMQswCQYDVQQLDAJvdTEQMA4GA1UEBhMHR2VybWFueTEP\n" + 
-				"MA0GA1UECAwGQmF5ZXJuMRIwEAYDVQQHDAlOdXJlbWJlcmcxGTAXBgNVBGEMEFBT\n" + 
-				"REVTLUJERS0zREZEMjEwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCz\n" + 
-				"ezfS9BIdspq9wa4oxGo+aMxBVYOxLR4h/9X4hU/8fnxgq7BIrVKbgeckcjPcRhr+\n" + 
-				"ULeJmkemQJnhwLqlmdAtcmbhU16dKnIAYV9YhIe3HEr1s7LUeKt2qEMyXXQvz9RG\n" + 
-				"FOkceqDqGqSRGwBlRMOmPTvVsVYyzqhSh4SiLFWOO3U4ZZy47ymgSgVvRE+Vg8A3\n" + 
-				"YWkS/605LU6p0IIA1PPg7ym3/8fZ6C8UTXuFIoXn+ukOGiEE9tGHqSr4IrlNtb3f\n" + 
-				"MbRWW/pR109DuNLAqFByjYzR+unbWZ0qCgwVnddIcupGehmnEcNkx8hTLAbdYk4b\n" + 
-				"16cy7RWxoSj0FahPt59zAgMBAAGjQDA+MDwGCCsGAQUFBwEDBDAwLjAsBgYEAIGY\n" + 
-				"JwIwIjATMBEGBwQAgZgnAQEMBlBTUF9BUwwCQ0EMB0JyaXRhaW4wDQYJKoZIhvcN\n" + 
-				"AQEFBQADggEBABbJAOs7JqXQL4ovxSEwaB08prhq8x+9SAK5e4IF1Mn+CHfafCAS\n" + 
-				"ZttYMb2nDt9DSoUNWW5Mzn1DBkTA4LEZtIfM547SeyOjKNkiQTVSS83It58Ou0vc\n" + 
-				"nAXU7xTLKbbK+U5MuGetfsGdiNjCgzY32besNTEQ2JcOeVxs5wZF8+/bgf6d2xNl\n" + 
-				"smXRoqsavNnzolhmxNzackdOKVn1FmAMwdBxC/cH4DpNCdXFteCYRuxEs453sYZJ\n" + 
-				"BkaFceu0XrUTTW2+eqWWgkv8ZqOLyq8W22tdDCv0ndvAiAGhfKmDh4WJvIBIJAL5\n" + 
-				"x1IS754+1mJmR3KCMzpUo0PueEdhARFqrVs=\n" + 
-				"-----END CERTIFICATE-----\n" );
+				"-----BEGIN CERTIFICATE-----" + 
+				"MIID1jCCAr6gAwIBAgIEb8KUejANBgkqhkiG9w0BAQUFADCBlDELMAkGA1UEBhMC" + 
+				"REUxDzANBgNVBAgMBkhlc3NlbjESMBAGA1UEBwwJRnJhbmtmdXJ0MRUwEwYDVQQK" + 
+				"DAxBdXRob3JpdHkgQ0ExCzAJBgNVBAsMAklUMSEwHwYDVQQDDBhBdXRob3JpdHkg" + 
+				"Q0EgRG9tYWluIE5hbWUxGTAXBgkqhkiG9w0BCQEWCmNhQHRlc3QuZGUwHhcNMTgx" + 
+				"MTEzMDk0MjU4WhcNMTgxMTMwMTAyMzI3WjCBgjETMBEGA1UEAwwKZG9tYWluTmFt" + 
+				"ZTEMMAoGA1UECgwDb3JnMQswCQYDVQQLDAJvdTEQMA4GA1UEBhMHR2VybWFueTEP" + 
+				"MA0GA1UECAwGQmF5ZXJuMRIwEAYDVQQHDAlOdXJlbWJlcmcxGTAXBgNVBGEMEFBT" + 
+				"REVTLUJERS0zREZEMjEwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCz" + 
+				"ezfS9BIdspq9wa4oxGo+aMxBVYOxLR4h/9X4hU/8fnxgq7BIrVKbgeckcjPcRhr+" + 
+				"ULeJmkemQJnhwLqlmdAtcmbhU16dKnIAYV9YhIe3HEr1s7LUeKt2qEMyXXQvz9RG" + 
+				"FOkceqDqGqSRGwBlRMOmPTvVsVYyzqhSh4SiLFWOO3U4ZZy47ymgSgVvRE+Vg8A3" + 
+				"YWkS/605LU6p0IIA1PPg7ym3/8fZ6C8UTXuFIoXn+ukOGiEE9tGHqSr4IrlNtb3f" + 
+				"MbRWW/pR109DuNLAqFByjYzR+unbWZ0qCgwVnddIcupGehmnEcNkx8hTLAbdYk4b" + 
+				"16cy7RWxoSj0FahPt59zAgMBAAGjQDA+MDwGCCsGAQUFBwEDBDAwLjAsBgYEAIGY" + 
+				"JwIwIjATMBEGBwQAgZgnAQEMBlBTUF9BUwwCQ0EMB0JyaXRhaW4wDQYJKoZIhvcN" + 
+				"AQEFBQADggEBABbJAOs7JqXQL4ovxSEwaB08prhq8x+9SAK5e4IF1Mn+CHfafCAS" + 
+				"ZttYMb2nDt9DSoUNWW5Mzn1DBkTA4LEZtIfM547SeyOjKNkiQTVSS83It58Ou0vc" + 
+				"nAXU7xTLKbbK+U5MuGetfsGdiNjCgzY32besNTEQ2JcOeVxs5wZF8+/bgf6d2xNl" + 
+				"smXRoqsavNnzolhmxNzackdOKVn1FmAMwdBxC/cH4DpNCdXFteCYRuxEs453sYZJ" + 
+				"BkaFceu0XrUTTW2+eqWWgkv8ZqOLyq8W22tdDCv0ndvAiAGhfKmDh4WJvIBIJAL5" + 
+				"x1IS754+1mJmR3KCMzpUo0PueEdhARFqrVs=" + 
+				"-----END CERTIFICATE-----" );
 	}
 	
 	@Test
@@ -206,24 +210,24 @@ public class EiDASCertificateTest {
 				
 		
 		String json = "" +
-			"{\n" + 
-			"  \"certInfo\": {\n" + 
-			"    \"basicConstraints\": \"CA: true\",\n" + 
-			"    \"subject\": \"OID.2.5.4.97\\u003d12345987, L\\u003dNuremberg, ST\\u003dBayern, C\\u003dGermany, OU\\u003dou, O\\u003dorg, CN\\u003ddomainName\",\n" + 
-			"    \"issuer\": \"EMAILADDRESS\\u003dca@test.de, CN\\u003dAuthority CA Domain Name, OU\\u003dIT, O\\u003dAuthority CA, L\\u003dFrankfurt, ST\\u003dHessen, C\\u003dDE\",\n" + 
-			"    \"validFrom\": 1543573407000,\n" + 
-			"    \"expiryDate\": 1543573407000,\n" + 
-			"    \"isValid\": \"\\u003cTODO\\u003e\",\n" + 
-			"    \"publicKey\": \"RSA, 2048\",\n" + 
-			"    \"serialNumber\": 1875022970,\n" + 
-			"    \"sigAlgName\": \"SHA1withRSA\",\n" + 
-			"    \"version\": 3,\n" + 
-			"    \"fingerprintSha256\": \"8345ed6b67056bb641e6ccac5a0579acdf80663de59f7b92f561b66bb6d8876b\",\n" + 
-			"    \"fingerprintSha1\": \"cc1adb500568facbff32b475161936dc5becfc4b\",\n" + 
-			"    \"ncaName\": \"ncaname\",\n" + 
-			"    \"ncaId\": \"ncaid\",\n" + 
-			"    \"rolesOfPSP\": [\"PSP_AS\",\"PSP_PI\"]\n" + 
-			"  }\n" + 
+			"{" + 
+			"  \"certInfo\": {" + 
+			"    \"basicConstraints\": \"CA: true\"," + 
+			"    \"subject\": \"OID.2.5.4.97\\u003d12345987, L\\u003dNuremberg, ST\\u003dBayern, C\\u003dGermany, OU\\u003dou, O\\u003dorg, CN\\u003ddomainName\"," + 
+			"    \"issuer\": \"EMAILADDRESS\\u003dca@test.de, CN\\u003dAuthority CA Domain Name, OU\\u003dIT, O\\u003dAuthority CA, L\\u003dFrankfurt, ST\\u003dHessen, C\\u003dDE\"," + 
+			"    \"validFrom\": 1543573407000," + 
+			"    \"expiryDate\": 1543573407000," + 
+			"    \"isValid\": \"\\u003cTODO\\u003e\"," + 
+			"    \"publicKey\": \"RSA, 2048\"," + 
+			"    \"serialNumber\": 1875022970," + 
+			"    \"sigAlgName\": \"SHA1withRSA\"," + 
+			"    \"version\": 3," + 
+			"    \"fingerprintSha256\": \"8345ed6b67056bb641e6ccac5a0579acdf80663de59f7b92f561b66bb6d8876b\"," + 
+			"    \"fingerprintSha1\": \"cc1adb500568facbff32b475161936dc5becfc4b\"," + 
+			"    \"ncaName\": \"ncaname\"," + 
+			"    \"ncaId\": \"ncaid\"," + 
+			"    \"rolesOfPSP\": [\"PSP_AS\",\"PSP_PI\"]" + 
+			"  }" + 
 			"}";
 		
 		
@@ -330,11 +334,11 @@ public class EiDASCertificateTest {
 			keyPem = eidascert.privateKeyPem( keyPair, "Welcome123" );
 			
 			
-			X509Certificate cert = eidascert.createFromJson(json, keyPair);
+			X509Certificate cert = eidascert.createCertificateFromJson(json, keyPair.getPrivate(), keyPair.getPublic() );
 			
 			
 			
-			pem = eidascert.writePem( cert );
+			pem = eidascert.writeCertPem( cert );
 			
 			
 		} catch (IOException e) {
@@ -359,37 +363,211 @@ public class EiDASCertificateTest {
 				
 		
 		
-assertEquals(keyPem, "-----BEGIN RSA PRIVATE KEY-----\n" + 
-		"Proc-Type: 4,ENCRYPTED\n" + 
-		"DEK-Info: AES-256-CBC,6E33E339CE0BB6B1B78ECB5172F6BE48\n" + 
-		"\n" + 
-		"EAuLeVfd7evM6TqCr0k2nrzlwtBnwA9cOvpq8OvgAGNsoLPLr9PnS+kzeMDQ2J3V\n" + 
-		"QmhiCNmCdOxXbqEwPw1PBEGs36ItdE1dMoZR0l0RymNa0vZKYni7hltjjz+f4m4H\n" + 
-		"E0VnGCkat4RuFCVMxoWvjwTLe1HeK1Oo1ik79wYX3a7wHszCybGVLHTKMtpP2MCn\n" + 
-		"+xC1Zt+Vd8wmvvnC5iTaJpvbJMne+NgR0+xMyrsed3oBNzdtrfoS4vGsk3cLvrvn\n" + 
-		"fIeQcUg1aHlfgcHBjUW9RUS/0nuvwdjjRNYr+/29EhOrcZemDS3YcVZGSVf/e/x9\n" + 
-		"opjE6SjeBfaj6D+isaN3N6jvlhZqI09cR6Kz6epPlIrj6rjZrFR2XHGdlVBxxUZb\n" + 
-		"YteMHpmWZDIfrjIB3zMSozNor9rRXXZ3yeFX3FSmxo5EUjHinm8xMSlTNv1/XHCJ\n" + 
-		"YfZ2nYvBDHfgddqAqVfE9gAwnf/GCCk+wUftn58CngauNGK5KEJEqTXLzRrW0L6z\n" + 
-		"yrNpb4m1g457F5jOAOo8aPesXhqN3lo+/xFVs6taUchFBOuq3FCOL36xVW/xCdqD\n" + 
-		"yQEjP9PUE0/rJMf183+mxyuFx2/ABNAmtBxbNv4uz1pxcn1f33skHtEQN1PkFx/1\n" + 
-		"HvtQQfvVWjQOiJxuy3FtDWYPvBVczgbPX3MuX9kPTBW4gFrwprqDLjgvkarj5Jrx\n" + 
-		"91gs9Zf+lSp3UusTuR7vClsCqAtceIWmBIKez4WLTE3nZPNAa8G2yJfylVMaK0do\n" + 
-		"OQjX7chKIgpCnd73O4D9ZwSupscoykkeuNF9JLyC1DkSzGvsbwbYqairO07i8FRz\n" + 
-		"LEa+apcoT5nh2DnK4G03e4HU1o49LL9xinqCckgU1FuqsRku+eJuRxPT7ietSv9r\n" + 
-		"3mh5O/7Pk1NNJCzx9JgiOgeFVKVIB8trP3OCWkyR6bVLIbABqKh0apXlmkIkHqUy\n" + 
-		"n4kLpTgPVVWvt/7Pn5NLCQh6h/fnCvfBwa8QuE+EQsAeJNiRZCa/Rg0eilN4Lr5X\n" + 
-		"vMd0LM48aSfLi36ExmgyGCu2D+Dlsj7DQGxY3BT+kokgzFvLAS+c/aA8/zIdYuGy\n" + 
-		"jC2hrKrH0QEoVjCKpsBboWP73tfSWmoKBpMfVcngH5E53n6NbOP5DOud948HZzY7\n" + 
-		"arnMg95seYMV5z9brwQuLGAfBZ0VHFqVqsQ0dMHqWawJFSTRkHRRGBSgpvUHaoKQ\n" + 
-		"fH0tlBKKaGa39c/h/BE2oovNHCbWC1ZUiio2yMcCOfKLJj8+7pEGax38E6JAOOgW\n" + 
-		"yqD2ou8s9H4Qsf+MjG1k2oVGUd/TZADM/8KnhHe9vDoLOYYkLGV0nKl12TCrHqgE\n" + 
-		"mZEx+P6XsCilOd2cek1PXXpz7LZ1wsHg/ewLhk/hmzrAEkBdE4OEdZizg92HDWZk\n" + 
-		"pXktw4nr6uzf3TAmEUnEnjSlHjnWNrQcRXKdHTzx2ndDJNXPk8BQTnzGWMHppHu4\n" + 
-		"PARqy36yrUcKTtftBOX/+eix0L55wwJ8IirZESPFEo159TFzagZt5i5+4S6aVSYm\n" + 
-		"zipAyJsXbWO5/Kn6EpVqsoM0rKWckjKM7G/+lThBFEwqI4LzNJIIsgDVdhHbvGsP\n" + 
-		"-----END RSA PRIVATE KEY-----\n" );
+assertEquals(keyPem, "-----BEGIN RSA PRIVATE KEY-----" + 
+		"Proc-Type: 4,ENCRYPTED" + 
+		"DEK-Info: AES-256-CBC,6E33E339CE0BB6B1B78ECB5172F6BE48" + 
+		"" + 
+		"EAuLeVfd7evM6TqCr0k2nrzlwtBnwA9cOvpq8OvgAGNsoLPLr9PnS+kzeMDQ2J3V" + 
+		"QmhiCNmCdOxXbqEwPw1PBEGs36ItdE1dMoZR0l0RymNa0vZKYni7hltjjz+f4m4H" + 
+		"E0VnGCkat4RuFCVMxoWvjwTLe1HeK1Oo1ik79wYX3a7wHszCybGVLHTKMtpP2MCn" + 
+		"+xC1Zt+Vd8wmvvnC5iTaJpvbJMne+NgR0+xMyrsed3oBNzdtrfoS4vGsk3cLvrvn" + 
+		"fIeQcUg1aHlfgcHBjUW9RUS/0nuvwdjjRNYr+/29EhOrcZemDS3YcVZGSVf/e/x9" + 
+		"opjE6SjeBfaj6D+isaN3N6jvlhZqI09cR6Kz6epPlIrj6rjZrFR2XHGdlVBxxUZb" + 
+		"YteMHpmWZDIfrjIB3zMSozNor9rRXXZ3yeFX3FSmxo5EUjHinm8xMSlTNv1/XHCJ" + 
+		"YfZ2nYvBDHfgddqAqVfE9gAwnf/GCCk+wUftn58CngauNGK5KEJEqTXLzRrW0L6z" + 
+		"yrNpb4m1g457F5jOAOo8aPesXhqN3lo+/xFVs6taUchFBOuq3FCOL36xVW/xCdqD" + 
+		"yQEjP9PUE0/rJMf183+mxyuFx2/ABNAmtBxbNv4uz1pxcn1f33skHtEQN1PkFx/1" + 
+		"HvtQQfvVWjQOiJxuy3FtDWYPvBVczgbPX3MuX9kPTBW4gFrwprqDLjgvkarj5Jrx" + 
+		"91gs9Zf+lSp3UusTuR7vClsCqAtceIWmBIKez4WLTE3nZPNAa8G2yJfylVMaK0do" + 
+		"OQjX7chKIgpCnd73O4D9ZwSupscoykkeuNF9JLyC1DkSzGvsbwbYqairO07i8FRz" + 
+		"LEa+apcoT5nh2DnK4G03e4HU1o49LL9xinqCckgU1FuqsRku+eJuRxPT7ietSv9r" + 
+		"3mh5O/7Pk1NNJCzx9JgiOgeFVKVIB8trP3OCWkyR6bVLIbABqKh0apXlmkIkHqUy" + 
+		"n4kLpTgPVVWvt/7Pn5NLCQh6h/fnCvfBwa8QuE+EQsAeJNiRZCa/Rg0eilN4Lr5X" + 
+		"vMd0LM48aSfLi36ExmgyGCu2D+Dlsj7DQGxY3BT+kokgzFvLAS+c/aA8/zIdYuGy" + 
+		"jC2hrKrH0QEoVjCKpsBboWP73tfSWmoKBpMfVcngH5E53n6NbOP5DOud948HZzY7" + 
+		"arnMg95seYMV5z9brwQuLGAfBZ0VHFqVqsQ0dMHqWawJFSTRkHRRGBSgpvUHaoKQ" + 
+		"fH0tlBKKaGa39c/h/BE2oovNHCbWC1ZUiio2yMcCOfKLJj8+7pEGax38E6JAOOgW" + 
+		"yqD2ou8s9H4Qsf+MjG1k2oVGUd/TZADM/8KnhHe9vDoLOYYkLGV0nKl12TCrHqgE" + 
+		"mZEx+P6XsCilOd2cek1PXXpz7LZ1wsHg/ewLhk/hmzrAEkBdE4OEdZizg92HDWZk" + 
+		"pXktw4nr6uzf3TAmEUnEnjSlHjnWNrQcRXKdHTzx2ndDJNXPk8BQTnzGWMHppHu4" + 
+		"PARqy36yrUcKTtftBOX/+eix0L55wwJ8IirZESPFEo159TFzagZt5i5+4S6aVSYm" + 
+		"zipAyJsXbWO5/Kn6EpVqsoM0rKWckjKM7G/+lThBFEwqI4LzNJIIsgDVdhHbvGsP" + 
+		"-----END RSA PRIVATE KEY-----" );
 		
 	}
 	
+	
+	@Test
+	public void createCertficationRequestFromJson() {
+				
+		
+		String json = "" +
+			"{" + 
+			"  \"certInfo\": {" + 
+			"    \"basicConstraints\": \"CA: true\"," + 
+			"    \"subject\": \"OID.2.5.4.97\\u003d12345987, L\\u003dNuremberg, ST\\u003dBayern, C\\u003dGermany, OU\\u003dou, O\\u003dorg, CN\\u003ddomainName\"," + 
+			"    \"issuer\": \"EMAILADDRESS\\u003dca@test.de, CN\\u003dAuthority CA Domain Name, OU\\u003dIT, O\\u003dAuthority CA, L\\u003dFrankfurt, ST\\u003dHessen, C\\u003dDE\"," + 
+			"    \"validFrom\": 1543573407000," + 
+			"    \"expiryDate\": 1543573407000," + 
+			"    \"isValid\": \"\\u003cTODO\\u003e\"," + 
+			"    \"publicKey\": \"RSA, 2048\"," + 
+			"    \"serialNumber\": 1875022970," + 
+			"    \"sigAlgName\": \"SHA1withRSA\"," + 
+			"    \"version\": 3," + 
+			"    \"fingerprintSha256\": \"8345ed6b67056bb641e6ccac5a0579acdf80663de59f7b92f561b66bb6d8876b\"," + 
+			"    \"fingerprintSha1\": \"cc1adb500568facbff32b475161936dc5becfc4b\"," + 
+			"    \"ncaName\": \"ncaname\"," + 
+			"    \"ncaId\": \"ncaid\"," + 
+			"    \"rolesOfPSP\": [\"PSP_AS\",\"PSP_PI\"]" + 
+			"  }" + 
+			"}";
+		
+		
+		
+		EiDASCertificate eidascert = new EiDASCertificate();
+		String keyPem = null;
+		String pem = null;
+		
+		Security.addProvider(new BouncyCastleProvider());
+
+		try {
+			
+			KeyPair keyPair = eidascert.genKeyPair();
+			
+			keyPem = eidascert.privateKeyPem( keyPair, "Welcome123" );
+			
+			PKCS10CertificationRequest csr = eidascert.createCertificationRequestFromJson(json, keyPair);
+			
+
+			pem = eidascert.writeCSRPem( csr );
+			
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		} catch (NoSuchProviderException e) {
+			e.printStackTrace();
+		} catch (OperatorCreationException e) {
+			e.printStackTrace();
+		}
+
+	}
+	
+	
+	
+	@Test
+	public void signCertficationRequestFromJson() {
+				
+		
+		String json = "" +
+			"{" + 
+			"  \"certInfo\": {" + 
+			"    \"basicConstraints\": \"CA: true\"," + 
+			"    \"subject\": \"emailAddress\\u003dca@test.de, CN\\u003dAuthority CA Domain Name, OU\\u003dIT, O\\u003dAuthority CA, L\\u003dFrankfurt, ST\\u003dHessen, C\\u003dDE\"," +
+			"    \"issuer\": \"C\\u003dUK, L\\u003dLondon, O\\u003dExco PLC, OU\\u003dCA Services/Interm Desk, CN\\u003dExco-Interm-CA\","+
+			"    \"validFrom\": 1543573407000," + 
+			"    \"expiryDate\": 1559740306000," + 
+			"    \"isValid\": \"\\u003cTODO\\u003e\"," + 
+			"    \"publicKey\": \"RSA, 2048\"," + 
+			"    \"serialNumber\": 1875022970," + 
+			"    \"sigAlgName\": \"SHA1withRSA\"," + 
+			"    \"version\": 3," + 
+			"    \"fingerprintSha256\": \"8345ed6b67056bb641e6ccac5a0579acdf80663de59f7b92f561b66bb6d8876b\"," + 
+			"    \"fingerprintSha1\": \"cc1adb500568facbff32b475161936dc5becfc4b\"," + 
+			"    \"ncaName\": \"ncaname\"," + 
+			"    \"ncaId\": \"ncaid\"," + 
+			"    \"rolesOfPSP\": [\"PSP_AS\",\"PSP_PI\"]" + 
+			"  }" + 
+			"}";
+		
+		// intermediate_ca.pem 
+		String imcaKeyPem = "-----BEGIN RSA PRIVATE KEY-----\n" + 
+				"MIIEowIBAAKCAQEAuvYEVs1/k1HsULB5/zSRcXXmECVKVsZCcifvavrTtho6VaEZ\n" + 
+				"Mf/AXTce5p5McmxOe2PSCOd8b1qOH1+inqfMKVCJptb5VOAEW2ZSOIHKWggHFqG3\n" + 
+				"nMN9G+rdMKc+jwtJmLmeI1DvkrjkyDaYSsYsfg0tCswBijhcof7dGSyYHBmR6njP\n" + 
+				"9qMIWky/h3v55uU0oBPXoFjrRhIHNASLbLY/v+8ADbI9vAfK5p9ccNAbt9sTXwGV\n" + 
+				"jVEJ0KLMZQsOFsmAelBIU8TSiYpJS53IGtbL8wEnCgbcWFKYOfRar+NBKjJ52pBd\n" + 
+				"DWrFV5VDbfWvvaZ/NKCta5RU0lJgiYbj340dgwIDAQABAoIBAGUPy3SojMezxwwu\n" + 
+				"+SNM5TnxwzUDE1YowY43rCGmCH8tWk8jUB1I5FD/FMMQ2r4Xca0dXlHV39vJlX28\n" + 
+				"Eom0ppXGpUH8fra0iWZmvxcwgZN9N2eybzBcM+q9YGeGYDiun0/hNmxcucQUEgdw\n" + 
+				"C46P5UkWEjz93e87XEdtH1MWWfsFoX+ViyAC/3UKRMvB2ELCeOQtpLH9gQrlkIFh\n" + 
+				"dS3kUgjQgwJuoWcbVIQ1g8vgRjtTQOZqm6MuREVa1Khcyg5uwn7PEJjV/xyQaBny\n" + 
+				"zA8S52RV1Rsx+a9ka8LhS56n5vgA/HTodgVarsUMASk6GKYu42LBQ1PiNTtxFKNC\n" + 
+				"CO7/isECgYEAxC8sghNygQ/18sWjsDzr8sqOqvqMyLqsyC/b1DhfPgNCViZ4wrEw\n" + 
+				"LWpjcy2h/gjD4MtICiJFWkMAAPsddfXRB6II0aNAksM1kr8kWSWJXP4XrPZVBsGl\n" + 
+				"/mJwDpgFkO6uABP843DnPHvmcBD/9gCHi5f2rONOJzuHW++PZLsBhvMCgYEA8/bv\n" + 
+				"yaJlu4lXFw7jK6QzpgAx72oT2yU9XHMRrI66/ac1VE7HzBSQR5FKlKHNG+FYozk2\n" + 
+				"GOWTdUEDr2VZwURFxcs++/VOljZI4tCN6a08CyM9CB/tohHES4Nz1QDu3GLUPJHG\n" + 
+				"HEcFbynLQKUvaDHfcyFg0C4MrWV+JMj593fY0zECgYBdcp7/wqWrJmAf6NaEjzBQ\n" + 
+				"sP1uIfRHdOvyWyGaH9P2JPVHNgIVsvLg3ylJ5rWf3Kr4+7tv4E0qpnls/jBVTObp\n" + 
+				"fNw4h0ut3MA7C0MUF5Yrrni2kYuEsV8RIfCAcxdLpvVI4jx2VgQ/QkFMpjxWAICQ\n" + 
+				"FK2SQp+qfmeGekDSWWVr0wKBgQCzlFSDlr/N4NWzimjb6f1+tuwK8Il3KZ1WXPlo\n" + 
+				"jJPGPPu7eFYHuidOFvvQFp31ZNYrJ+TTRMJbcCT3SeJcqhW199r/+l0DoyfZlWyw\n" + 
+				"0qy9Ag5d2arBPtTARR3Rb+NjZHgXsbIjhH/SiPAtQKp5xyRVCf/KnesFBA1rpGij\n" + 
+				"qZt4MQKBgFK4S3LMP7rlNkvHmRZ+6oz0Dquz5qza/60B0wl2/QiR/xv8bfC3RX+E\n" + 
+				"aYd6zLNMPEHmVy49bCeNKtEcjiJOWP+zpDIr6bjvgH3cLsVM1bn5GS9eYUIsaARb\n" + 
+				"eZc6juNzKPKZhY4MKm9daoWE6lGs02tkdD6pVaB5K6GIIT4LuZML\n" + 
+				"-----END RSA PRIVATE KEY-----";
+	
+		
+		String csrPem = "-----BEGIN CERTIFICATE REQUEST-----\n" + 
+				"MIIDPzCCAicCAQAwgZQxGTAXBgkqhkiG9w0BCQEWCmNhQHRlc3QuZGUxITAfBgNV\n" + 
+				"BAMMGEF1dGhvcml0eSBDQSBEb21haW4gTmFtZTELMAkGA1UECwwCSVQxFTATBgNV\n" + 
+				"BAoMDEF1dGhvcml0eSBDQTESMBAGA1UEBwwJRnJhbmtmdXJ0MQ8wDQYDVQQIDAZI\n" + 
+				"ZXNzZW4xCzAJBgNVBAYTAkRFMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKC\n" + 
+				"AQEAl/Dx9JIcreIutRf9ykknHHNjUivROPCM2cFxFe0sLDlr7jmPXFHGg/UX9O8a\n" + 
+				"Q81ADi4BoLVnlwK23Wj81zMupok5a+ahP/wIMSq7rn9HPkKZUmgKTDA77dvOLRpH\n" + 
+				"C1l9fSGriAr5tVGCURugwK59gVQDGrxF5L1PgwOBEg4inuVqOVF2Vi7tFnop+Vpo\n" + 
+				"A/ZZJYbkjg08KnKeEYDgJmQYeRN2Se33+/gltAda/wexUzldWJPHeco8exNWPi6j\n" + 
+				"cg8cEkyFsew7ndY0+BKYZgGF3OofHzncRx4cbO0zVnguyiQZdOlXWdv2cV1KuIre\n" + 
+				"MNhqtdMf1QMupkaM604BDMo0NwIDAQABoGUwYwYJKoZIhvcNAQkOMVYwVDBSBggr\n" + 
+				"BgEFBQcBAwRGMEQwQgYGBACBmCcCMDgwJjARBgcEAIGYJwEBDAZQU1BfQVMwEQYH\n" + 
+				"BACBmCcBAgwGUFNQX1BJDAduY2FuYW1lDAVuY2FpZDANBgkqhkiG9w0BAQsFAAOC\n" + 
+				"AQEAI51wCgPZkqeAHsyA69SLI2Ar5o/NLeuCo6qoIXpsl950MBxmq4Zs2oyWuA1M\n" + 
+				"6iqPB2GzSvqopXrA/M8SxSEs4EaJfmcxESYQUC7Vi3Bia1WSWtfkyPSSYkFwsaV9\n" + 
+				"4VLkKpZPts9RtHMdOYxR80IPqciHuqU6+LrXMa/j7qIYf6kUG4sGKH3/kHDiVyYs\n" + 
+				"O2s5hb8kOycIAkYNj0kHBmoETd7W3tU9P5emK1C5s0PRbj4ujIjMQrsPDd+FXYty\n" + 
+				"xtd8HUAYAjXLdkHY8POK5qoeNWlJDwMZo3IWjzI3gfQc8Q4jtwDq+sBPW/vR0WL9\n" + 
+				"sUZFEKp8LPcO5ZQngSR1QyMdRA==\n" + 
+				"-----END CERTIFICATE REQUEST-----";
+		
+		EiDASCertificate eidascert = new EiDASCertificate();
+		
+		PrivateKey imcaPrivateKey = null;
+		PublicKey csrPublicKey = null;
+		
+		String pem = null;
+		
+		Security.addProvider(new BouncyCastleProvider());
+
+		try {
+			
+			imcaPrivateKey = eidascert.getKeyPair( imcaKeyPem, null ).getPrivate();
+			
+			
+			csrPublicKey = eidascert.getPublicKeyFromCSRPem( csrPem );
+			
+			
+			
+			X509Certificate cert = eidascert.createCertificateFromJson( json, imcaPrivateKey, csrPublicKey ); 
+			
+			
+			pem = eidascert.writeCertPem( cert );
+			
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (OperatorCreationException e) {
+			e.printStackTrace();
+		} catch (CertificateException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
 }
+
+
+
+

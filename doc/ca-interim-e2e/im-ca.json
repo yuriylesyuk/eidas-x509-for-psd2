@@ -1,0 +1,18 @@
+{
+ "CN": "Exco-Interm-CA",
+ "key": {
+    "algo": "rsa",
+    "size": 2048
+ },
+ "names": [
+ {
+    "C": "UK",
+    "L": "London",
+    "O": "Exco PLC",
+    "OU": "CA Services/Interm Desk"
+ }
+ ],
+ "ca": {
+    "expiry": "42720h"
+ }
+}
