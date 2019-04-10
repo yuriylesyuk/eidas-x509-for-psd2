@@ -94,7 +94,7 @@ public class EiDASCertificateParserCalloutTest {
 	public void parsePsd2Certificate() {
 
 		messageContext.setVariable("request.header.SSL_CLIENT_CERT",
-				"-----BEGIN CERTIFICATE-----"
+				"-----BEGIN CERTIFICATE-----\\n"
 				+ "MIIECDCCAvCgAwIBAgIEb8KUejANBgkqhkiG9w0BAQsFADCBlDELMAkGA1UEBhMC"
 				+ "REUxDzANBgNVBAgMBkhlc3NlbjESMBAGA1UEBwwJRnJhbmtmdXJ0MRUwEwYDVQQK"
 				+ "DAxBdXRob3JpdHkgQ0ExCzAJBgNVBAsMAklUMSEwHwYDVQQDDBhBdXRob3JpdHkg"
@@ -116,7 +116,7 @@ public class EiDASCertificateParserCalloutTest {
 				+ "/N0bdVuxIhxatwA/4Dh0zMO0e3GTmK0iMcRczaPuiCQiDuEaoKy+ZpDzdGfrsmDx"
 				+ "5wKhIdJ/HoV/fi3gjnUcBUFI3n9MZxinPfIvbouHkRpBtyN8T25NGdpKgLX5P3l9"
 				+ "yE+a+3BoVXBsDgmkuf5pkcagyWC53vZRwceBKEaRzVELmL+/9ftRm6d/DT54tCiR"
-				+ "Q1q2Ca1AIXrpFAoDBAvqtQb4lyPnG6BJcwYBUg=="
+				+ "Q1q2Ca1AIXrpFAoDBAvqtQb4lyPnG6BJcwYBUg==\\n"
 				+ "-----END CERTIFICATE-----");
 
 		Map<String, String> properties = new HashMap<String, String>();
@@ -130,19 +130,24 @@ public class EiDASCertificateParserCalloutTest {
 
 		// TODO
 		assertEquals(messageContext.getVariable("context.certinfo"),
-				"{\"certInfo\":{\"basicConstraints\":\"CA: true\","
-				+ "\"subject\":\"OID.2.5.4.97=12345987, L=Nuremberg, ST=Bayern, C=Germany, OU=ou, O=org, CN=domainName\","
-				+ "\"issuer\":\"EMAILADDRESS=ca@test.de, CN=Authority CA Domain Name, OU=IT, O=Authority CA, L=Frankfurt, ST=Hessen, C=DE\","
-				+ "\"validFrom\":1543573407000,"
-				+ "\"expiryDate\":1543573407000,"
-				+ "\"isValid\":\"<TODO>\","
-				+ "\"publicKey\":\"RSA, 2048\","
-				+ "\"serialNumber\":1875022970,"
-				+ "\"sigAlgName\":\"SHA256withRSA\","
-				+ "\"version\":3,"
-				+ "\"fingerprintSha256\":\"8519974939ccb1d2880bd8d635beffb7e0725fbc7d3af4ef2b8e9df88deeae7b\","
-				+ "\"fingerprintSha1\":\"b8f6a5c8b18a3e1b058f4ebd458683094caeacce\","
-				+ "\"rolesOfPSP\":\"[\\\"PSP_AS\\\",\\\"PSP_PI\\\",\\\"PSP_AI\\\",\\\"PSP_IC\\\"]\"}"
-				+ "}");
+				"{\n" + 
+				"  \"certInfo\": {\n" + 
+				"    \"basicConstraints\": \"CA: false\",\n" + 
+				"    \"subject\": \"organizationIdentifier=12345987, L=Nuremberg, ST=Bayern, C=Germany, OU=ou, O=org, CN=domainName\",\n" + 
+				"    \"issuer\": \"EMAILADDRESS=ca@test.de, CN=Authority CA Domain Name, OU=IT, O=Authority CA, L=Frankfurt, ST=Hessen, C=DE\",\n" + 
+				"    \"validFrom\": 1543573407000,\n" + 
+				"    \"expiryDate\": 1543573407000,\n" + 
+				"    \"isValid\": \"<TODO>\",\n" + 
+				"    \"publicKey\": \"RSA, 2048\",\n" + 
+				"    \"serialNumber\": 1875022970,\n" + 
+				"    \"sigAlgName\": \"SHA256withRSA\",\n" + 
+				"    \"version\": 3,\n" + 
+				"    \"fingerprintSha256\": \"8519974939ccb1d2880bd8d635beffb7e0725fbc7d3af4ef2b8e9df88deeae7b\",\n" + 
+				"    \"fingerprintSha1\": \"b8f6a5c8b18a3e1b058f4ebd458683094caeacce\",\n" + 
+				"    \"ncaName\": \"Auth\",\n" + 
+				"    \"ncaId\": \"Germany\",\n" + 
+				"    \"rolesOfPSP\": \"[\\\"PSP_AS\\\",\\\"PSP_PI\\\",\\\"PSP_AI\\\",\\\"PSP_IC\\\"]\"\n" + 
+				"  }\n" + 
+				"}");
 	}
 }

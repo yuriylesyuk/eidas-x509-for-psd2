@@ -44,7 +44,7 @@ import picocli.CommandLine.Option;
 		X509Certificate cert = eidascert.getCertificate( certPem );
 
 		
-		System.out.println( eidascert.showPem( cert ) );
+		System.out.println( eidascert.showPemAsJSON( cert ) );
 		
       
       return null;

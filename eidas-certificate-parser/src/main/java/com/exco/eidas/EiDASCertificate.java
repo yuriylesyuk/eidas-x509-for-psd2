@@ -279,7 +279,7 @@ public class EiDASCertificate {
 
 
 
-	public String showPem( X509Certificate cert ) {
+	public String showPemAsJSON( X509Certificate cert ) {
 		
 
 		Date expiryDate = cert.getNotAfter();
