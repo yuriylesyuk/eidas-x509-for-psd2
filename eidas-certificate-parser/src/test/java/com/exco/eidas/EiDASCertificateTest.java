@@ -555,7 +555,32 @@ assertEquals(keyPem, "-----BEGIN RSA PRIVATE KEY-----\n" +
 			
 			pem = eidascert.writeCertPem( cert );
 			
-			
+			assertEquals( pem, "-----BEGIN CERTIFICATE-----\n" + 
+					"MIID/jCCAuagAwIBAgIEb8KUejANBgkqhkiG9w0BAQUFADBsMQswCQYDVQQGEwJV\n" + 
+					"SzEPMA0GA1UEBwwGTG9uZG9uMREwDwYDVQQKDAhFeGNvIFBMQzEgMB4GA1UECwwX\n" + 
+					"Q0EgU2VydmljZXMvSW50ZXJtIERlc2sxFzAVBgNVBAMMDkV4Y28tSW50ZXJtLUNB\n" + 
+					"MB4XDTE4MTEzMDEwMjMyN1oXDTE5MDYwNTEzMTE0Nlowga8xGTAXBgkqhkiG9w0B\n" + 
+					"CQEWCmNhQHRlc3QuZGUxITAfBgNVBAMMGEF1dGhvcml0eSBDQSBEb21haW4gTmFt\n" + 
+					"ZTELMAkGA1UECwwCSVQxFTATBgNVBAoMDEF1dGhvcml0eSBDQTESMBAGA1UEBwwJ\n" + 
+					"RnJhbmtmdXJ0MQ8wDQYDVQQIDAZIZXNzZW4xCzAJBgNVBAYTAkRFMRkwFwYDVQRh\n" + 
+					"DBBQU0RFUy1CREUtM0RGRDIxMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKC\n" + 
+					"AQEAlfTKcv2bmQ8J7bJoD3rgoYMWSbhtgmd4X876ThUiY2FO2fDaGYVC2mF6/DSH\n" + 
+					"TtayAQpa0mipIK56UfAqdOVqgWDDylOOLs/nf+R0J3ccmSibhC+949v5SI2/iuw0\n" + 
+					"VQhvswi+P5ZKv9nhfl4Gyp7l+8zKtl0NSHOEPfpV/KxI3ZOQ9srpi1joiX9/R8u/\n" + 
+					"1T4L9QTFIq62GoBcF2pPBrQK5k2nRnMReahivMznNIAQK4bqdKfJAhjrXM3hYoPI\n" + 
+					"Le5uV6f46eNJMsTRIucJ2iQorwwVIxVCKx6Fklb1jb3QfuFdlbM/nImZIuTGQXsk\n" + 
+					"YrMiqaom5aXm3p0ovOAJ3HT0twIDAQABo2QwYjAMBgNVHRMEBTADAQH/MFIGCCsG\n" + 
+					"AQUFBwEDBEYwRDBCBgYEAIGYJwIwODAmMBEGBwQAgZgnAQEMBlBTUF9BUzARBgcE\n" + 
+					"AIGYJwECDAZQU1BfUEkMB25jYW5hbWUMBW5jYWlkMA0GCSqGSIb3DQEBBQUAA4IB\n" + 
+					"AQC1s3XqeMnghrgl0Si0s3IlpPA27s42eCa3ko3t3i+6GHLv/oB5EMrZJ0F/2Fum\n" + 
+					"Bn9TojcS30u52epDzjYYWMFv4LQm70694MgkA2T+Dd9sa6G13hXoAVFlUChh3Syu\n" + 
+					"NrDPQ3GHL0+O7IxneRdivS1fWJ4pL7ANvKFs6vmeTNLfNPI2rtuTC9THh2ENQ6/N\n" + 
+					"q8dRik6FI/xzt/RsRjU+wQsLA8ydmAINopi0BlalZjI5WhKUiWxOJsoH+2b1pPiz\n" + 
+					"gjNYnqxaIRGlKFqH5o5TFrNKJV4Q0MWXTHynPVAWlaH5fa2GLkTEvPRNY3bGJOoO\n" + 
+					"n45lYCv65YwbSXhQUWS5TtXG\n" + 
+					"-----END CERTIFICATE-----\n" ); 
+
+					
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (OperatorCreationException e) {
