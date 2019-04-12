@@ -3,7 +3,6 @@ package com.exco.eidas;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
@@ -15,14 +14,12 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
-import java.security.SecureRandom;
 import java.security.Security;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.DSAPublicKey;
 import java.security.interfaces.ECPublicKey;
-import java.security.interfaces.RSAPrivateCrtKey;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
@@ -35,7 +32,6 @@ import java.util.Hashtable;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -49,9 +45,7 @@ import org.bouncycastle.asn1.ASN1OctetString;
 import org.bouncycastle.asn1.ASN1Sequence;
 import org.bouncycastle.asn1.DERSequence;
 import org.bouncycastle.asn1.DERUTF8String;
-import org.bouncycastle.asn1.pkcs.CertificationRequest;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
-import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.asn1.x500.AttributeTypeAndValue;
 import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;
@@ -60,25 +54,15 @@ import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.asn1.x509.BasicConstraints;
 import org.bouncycastle.asn1.x509.Extension;
 import org.bouncycastle.asn1.x509.ExtensionsGenerator;
-import org.bouncycastle.asn1.x509.RSAPublicKeyStructure;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
-import org.bouncycastle.asn1.x509.X509Extension;
 import org.bouncycastle.asn1.x509.qualified.QCStatement;
 import org.bouncycastle.cert.CertIOException;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder;
-import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
-import org.bouncycastle.crypto.generators.RSAKeyPairGenerator;
-import org.bouncycastle.crypto.params.RSAKeyGenerationParameters;
 import org.bouncycastle.crypto.params.RSAKeyParameters;
-import org.bouncycastle.crypto.params.RSAPrivateCrtKeyParameters;
-import org.bouncycastle.crypto.prng.EntropySource;
-import org.bouncycastle.crypto.util.PrivateKeyInfoFactory;
 import org.bouncycastle.crypto.util.PublicKeyFactory;
-import org.bouncycastle.jcajce.provider.asymmetric.rsa.BCRSAPublicKey;
-import org.bouncycastle.jcajce.provider.asymmetric.rsa.RSAUtil;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.jce.provider.JCEECPublicKey;
 import org.bouncycastle.openssl.PEMDecryptorProvider;
@@ -87,9 +71,9 @@ import org.bouncycastle.openssl.PEMEncryptor;
 import org.bouncycastle.openssl.PEMException;
 import org.bouncycastle.openssl.PEMKeyPair;
 import org.bouncycastle.openssl.PEMParser;
-import org.bouncycastle.openssl.jcajce.JcaPEMWriter;
 import org.bouncycastle.openssl.jcajce.JcaMiscPEMGenerator;
 import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
+import org.bouncycastle.openssl.jcajce.JcaPEMWriter;
 import org.bouncycastle.openssl.jcajce.JcePEMDecryptorProviderBuilder;
 import org.bouncycastle.openssl.jcajce.JcePEMEncryptorBuilder;
 import org.bouncycastle.operator.ContentSigner;
@@ -114,6 +98,14 @@ import com.google.gson.JsonParser;
 public class EiDASCertificate {
 	
 	public static final ASN1ObjectIdentifier oid_QCStatements = new ASN1ObjectIdentifier("1.3.6.1.5.5.7.1.3");
+
+	
+    public static final ASN1ObjectIdentifier oid_etsi_qcs_QcType = new ASN1ObjectIdentifier("0.4.0.1862.1.6");
+
+    public static final ASN1ObjectIdentifier oid_etsi_qcs_QcType_eSign = oid_etsi_qcs_QcType.branch("1");
+    public static final ASN1ObjectIdentifier oid_etsi_qcs_QcType_eSeal = oid_etsi_qcs_QcType.branch("2");
+    public static final ASN1ObjectIdentifier oid_etsi_qcs_QcType_eWeb = oid_etsi_qcs_QcType.branch("3");
+	
 	
     public static final ASN1ObjectIdentifier oid_etsi_psd2_qcStatement = new ASN1ObjectIdentifier( "0.4.0.19495.2" );
     
@@ -125,6 +117,20 @@ public class EiDASCertificate {
     public static final ASN1ObjectIdentifier oid_etsi_psd2_role_psp_ic = oid_etsi_psd2_roles.branch("4");
     
     
+    
+    // QcTypes
+    public static final Map<String,ASN1ObjectIdentifier> typesOids = new LinkedHashMap<String,ASN1ObjectIdentifier>() {{
+        put( "eSign", oid_etsi_qcs_QcType_eSign );
+        put( "eSeal", oid_etsi_qcs_QcType_eSeal );
+        put( "eWeb", oid_etsi_qcs_QcType_eWeb );
+    }};
+    
+    public static final Map<ASN1ObjectIdentifier,String> typesNames = new LinkedHashMap<ASN1ObjectIdentifier,String>() {{
+        put( oid_etsi_qcs_QcType_eSign, "eSign"  );
+        put( oid_etsi_qcs_QcType_eSeal, "eSeal" );
+        put( oid_etsi_qcs_QcType_eWeb, "eWeb" );
+    }};
+
     
     // not in BC 1.56 which Edge uses
     public static final ASN1ObjectIdentifier ORGANIZATION_IDENTIFIER =  new ASN1ObjectIdentifier("2.5.4.97").intern();
@@ -324,15 +330,21 @@ public class EiDASCertificate {
 			String fingerprintSha1 = Hashing.sha1().hashBytes(cert.getEncoded()).toString();
 			certAttributes.addProperty("fingerprintSha1", fingerprintSha1);
 	
-			// qcExtentions
-			Map<String,String> attrs = getNcaAndRolesOfPSP(cert);
 			
-
-			certAttributes.addProperty("ncaName", attrs.get("ncaname"));
-
-			certAttributes.addProperty("ncaId", attrs.get("ncaid"));
-
-			certAttributes.addProperty("rolesOfPSP", attrs.get("roles") );
+			
+			// qcExtentions: qcType
+			String qcTypes = getQcRoles( cert );
+			if( qcTypes != null ){
+				certAttributes.addProperty( "qcTypes", getQcRoles( cert ) );
+			}
+			
+			// qcExtentions: psd2
+			Map<String,String> attrs = getNcaAndRolesOfPSP(cert);
+			if( attrs != null ) {
+				certAttributes.addProperty("ncaName", attrs.get("ncaname"));
+				certAttributes.addProperty("ncaId", attrs.get("ncaid"));
+				certAttributes.addProperty("rolesOfPSP", attrs.get("roles") );
+			}
 
 
 		} catch (Exception e) {
@@ -367,13 +379,11 @@ public class EiDASCertificate {
 	
 	}
 	
-	
-	private Map<String,String> getNcaAndRolesOfPSP(X509Certificate cert) throws Exception {
-
-		String ncaName = null;
-		String ncaId = null;
-		List<String> rolesList = new ArrayList<String>();
-
+	private String getQcRoles( X509Certificate cert ) throws Exception {
+		
+		List<String> typesList = null;
+		String typesJson = null;
+		
 		byte[] extv = cert.getExtensionValue(Extension.qCStatements.getId());
 		ASN1OctetString akiOc = ASN1OctetString.getInstance(extv);
 
@@ -385,42 +395,85 @@ public class EiDASCertificate {
 		for (int i = 0; i < qcStatements.size(); i++) {
 			final QCStatement qcStatement = QCStatement.getInstance(qcStatements.getObjectAt(i));
 
-			if (!oid_etsi_psd2_qcStatement.getId().equals(qcStatement.getStatementId().getId())) {
-				// panic if not a psd2 roles statement
+			if (oid_etsi_qcs_QcType.getId().equals(qcStatement.getStatementId().getId())) {
 
-				int x = 3;
-
-			}
-
-			ASN1Encodable statementInfo = qcStatement.getStatementInfo();
-
-			ASN1Sequence psd2QcType = ASN1Sequence.getInstance(statementInfo);
-
-			ASN1Sequence roles = ASN1Sequence.getInstance(psd2QcType.getObjectAt(0));
-			DERUTF8String derNCAName = DERUTF8String.getInstance(psd2QcType.getObjectAt(1));
-			DERUTF8String derNCAId = DERUTF8String.getInstance(psd2QcType.getObjectAt(2));
-			
-			ncaName = derNCAName.getString();
-			ncaId = derNCAId.getString();
-			//
-
-			for (int r = 0; r < roles.size(); r++) {
-
-				ASN1Sequence role = ASN1Sequence.getInstance(roles.getObjectAt(r));
-
-				ASN1ObjectIdentifier oid = ASN1ObjectIdentifier.getInstance(role.getObjectAt(0));
-				DERUTF8String roleOfPSPName = DERUTF8String.getInstance(role.getObjectAt(1));
-
-				rolesList.add(roleOfPSPName.getString());
-
+				typesList = new ArrayList<String>();
+				
+				ASN1Encodable statementInfo = qcStatement.getStatementInfo();
+	
+				ASN1Sequence types = ASN1Sequence.getInstance(statementInfo);
+				
+				//
+				for (int t = 0; t < types.size(); t++) {
+	
+					ASN1ObjectIdentifier oid = ASN1ObjectIdentifier.getInstance( types.getObjectAt(t) );
+	
+					typesList.add( typesNames.get( oid ) );
+				}
+				
+				typesJson = "[" + typesList.stream().map(t -> "\"" + t + "\"").reduce((ts, t) -> ts + "," + t).get() + "]"; 
+				
 			}
 		}
-
 		// }catch(){}
-		Map<String,String> attrs = new HashMap<String,String>();
-		attrs.put( "ncaname", ncaName );
-		attrs.put( "ncaid", ncaId );
-		attrs.put("roles", "[" + rolesList.stream().map(r -> "\"" + r + "\"").reduce((rs, r) -> rs + "," + r).get() + "]" );
+		
+		return typesJson;
+	}
+	
+	private Map<String,String> getNcaAndRolesOfPSP( X509Certificate cert ) throws Exception {
+
+		Map<String,String> attrs =null;
+		
+
+		byte[] extv = cert.getExtensionValue(Extension.qCStatements.getId());
+		ASN1OctetString akiOc = ASN1OctetString.getInstance(extv);
+
+		ASN1Sequence qcStatements = null;;
+
+		// try{
+		qcStatements = (ASN1Sequence) new ASN1InputStream(akiOc.getOctets()).readObject();
+
+		for (int i = 0; i < qcStatements.size(); i++) {
+			final QCStatement qcStatement = QCStatement.getInstance(qcStatements.getObjectAt(i));
+
+			if (oid_etsi_psd2_qcStatement.getId().equals(qcStatement.getStatementId().getId())) {
+				
+				String ncaName = null;
+				String ncaId = null;
+				List<String> rolesList = new ArrayList<String>();
+				
+
+				ASN1Encodable statementInfo = qcStatement.getStatementInfo();
+	
+				ASN1Sequence psd2QcType = ASN1Sequence.getInstance(statementInfo);
+	
+				ASN1Sequence roles = ASN1Sequence.getInstance(psd2QcType.getObjectAt(0));
+				DERUTF8String derNCAName = DERUTF8String.getInstance(psd2QcType.getObjectAt(1));
+				DERUTF8String derNCAId = DERUTF8String.getInstance(psd2QcType.getObjectAt(2));
+				
+				ncaName = derNCAName.getString();
+				ncaId = derNCAId.getString();
+				//
+	
+				for (int r = 0; r < roles.size(); r++) {
+	
+					ASN1Sequence role = ASN1Sequence.getInstance(roles.getObjectAt(r));
+	
+					ASN1ObjectIdentifier oid = ASN1ObjectIdentifier.getInstance(role.getObjectAt(0));
+					DERUTF8String roleOfPSPName = DERUTF8String.getInstance(role.getObjectAt(1));
+	
+					rolesList.add(roleOfPSPName.getString());
+	
+				}
+				
+				
+				attrs = new HashMap<String,String>();
+				attrs.put( "ncaname", ncaName );
+				attrs.put( "ncaid", ncaId );
+				attrs.put("roles", "[" + rolesList.stream().map(r -> "\"" + r + "\"").reduce((rs, r) -> rs + "," + r).get() + "]" );
+				
+			}
+		}
 
 		return attrs;
 	}
@@ -570,10 +623,27 @@ public class EiDASCertificate {
 	    		new DERUTF8String( ncaName ), 
 	    		new DERUTF8String( ncaId ) 
 	    	});
-
-	    
 	    
 	    return new QCStatement(oid_etsi_psd2_qcStatement, st);
+	}
+	
+	
+	private QCStatement qcStatementForQcType(
+				List<String> typesList 
+			) {
+		
+	    final ASN1EncodableVector types = new ASN1EncodableVector();
+		
+	    for( String typeKey : typesList ) {
+	    	
+	    	final ASN1EncodableVector type = new ASN1EncodableVector();
+	    	
+	    	types.add( typesOids.get( typeKey ) );
+	    }
+		
+	    DERSequence typesDS = new DERSequence( types );
+	    
+		return new QCStatement(oid_etsi_qcs_QcType, typesDS );
 	}
 	
 	// TODO: refactor with XREF:createCertificateFromJson
@@ -610,6 +680,21 @@ public class EiDASCertificate {
 		);
 		
 		
+		// QcStatements collector
+	    final ASN1EncodableVector qcsts = new ASN1EncodableVector();
+
+	    /// QcTypes Statement
+		List<String> typesList = new ArrayList<String>();
+
+		JsonArray types = certinfo.get("qcTypes").getAsJsonArray();
+		for( JsonElement t: types ) {
+			typesList.add( t.getAsString() );
+		}
+
+		QCStatement qcTypeSt = qcStatementForQcType( typesList );
+	    qcsts.add( qcTypeSt );
+
+	    
 		/// C&P section, psd2 attributes:
 		String ncaName = certinfo.get("ncaName").getAsString();
 		String ncaId =  certinfo.get("ncaId").getAsString();
@@ -622,19 +707,19 @@ public class EiDASCertificate {
 			rolesList.add( r.getAsString() );
 		}
 
-	    QCStatement qcst = qcStatementForRoles( ncaName, ncaId, rolesList );
+	    QCStatement qcPsd2St = qcStatementForRoles( ncaName, ncaId, rolesList );
 	    
-	    final ASN1EncodableVector qcsts = new ASN1EncodableVector();
-	    qcsts.add(qcst);
+	    qcsts.add( qcPsd2St );
+	    
+	    
 		/// C&P section: EOS
-		
 		ExtensionsGenerator extensionGenerator = new ExtensionsGenerator();
 		
 		
 		
 		
 		extensionGenerator.addExtension(oid_QCStatements, false,
-				new DERSequence(qcsts) 
+				new DERSequence( qcsts ) 
 		);
 		
 		p10Builder.addAttribute(PKCSObjectIdentifiers.pkcs_9_at_extensionRequest, extensionGenerator.generate());
@@ -907,7 +992,24 @@ public class EiDASCertificate {
 		boolean isCA = isCACertificate( certinfo.get("basicConstraints").getAsString() );
 		certbuilder.addExtension( Extension.basicConstraints, false, new BasicConstraints( isCA ) );
 		
-		// psd2 attributes
+// TODO: refactor against createCertificationRequestFromJson
+		// QcStatements collector
+	    final ASN1EncodableVector qcsts = new ASN1EncodableVector();
+
+	    /// QcTypes Statement
+		List<String> typesList = new ArrayList<String>();
+
+		JsonArray types = certinfo.get("qcTypes").getAsJsonArray();
+		for( JsonElement t: types ) {
+			typesList.add( t.getAsString() );
+		}
+
+		QCStatement qcTypeSt = qcStatementForQcType( typesList );
+	    qcsts.add( qcTypeSt );
+
+	    
+	    
+		/// C&P section, psd2 attributes:
 		String ncaName = certinfo.get("ncaName").getAsString();
 		String ncaId =  certinfo.get("ncaId").getAsString();
 		
@@ -919,10 +1021,9 @@ public class EiDASCertificate {
 			rolesList.add( r.getAsString() );
 		}
 
-	    QCStatement qcst = qcStatementForRoles( ncaName, ncaId, rolesList );
+	    QCStatement qcPsd2St = qcStatementForRoles( ncaName, ncaId, rolesList );
 	    
-	    final ASN1EncodableVector qcsts = new ASN1EncodableVector();
-	    qcsts.add(qcst);
+	    qcsts.add( qcPsd2St );
 
 	    certbuilder.addExtension(oid_QCStatements, false,  new DERSequence(qcsts) );
 		   

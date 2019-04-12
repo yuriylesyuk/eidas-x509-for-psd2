@@ -417,6 +417,7 @@ assertEquals(keyPem, "-----BEGIN RSA PRIVATE KEY-----\n" +
 			"    \"version\": 3," + 
 			"    \"fingerprintSha256\": \"8345ed6b67056bb641e6ccac5a0579acdf80663de59f7b92f561b66bb6d8876b\"," + 
 			"    \"fingerprintSha1\": \"cc1adb500568facbff32b475161936dc5becfc4b\"," + 
+			"    \"qcTypes\": [\"eSeal\",\"eWeb\"]," + 
 			"    \"ncaName\": \"ncaname\"," + 
 			"    \"ncaId\": \"ncaid\"," + 
 			"    \"rolesOfPSP\": [\"PSP_AS\",\"PSP_PI\"]" + 
@@ -435,7 +436,7 @@ assertEquals(keyPem, "-----BEGIN RSA PRIVATE KEY-----\n" +
 			
 			KeyPair keyPair = eidascert.genKeyPair();
 			
-			keyPem = eidascert.privateKeyPem( keyPair, "Welcome123" );
+			keyPem = eidascert.privateKeyPem( keyPair, null );
 			
 			PKCS10CertificationRequest csr = eidascert.createCertificationRequestFromJson(json, keyPair);
 			
