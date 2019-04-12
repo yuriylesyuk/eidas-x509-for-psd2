@@ -31,7 +31,7 @@ Configure the policy like this:
 ```
 <JavaCallout name="JavaCallout.EiDAS-CertificateParse">
     <Properties>
-        <Property name="pem-certificate">request.header.SSL_CLIENT_CERT</Property>
+        <Property name="certificate-pem">request.header.SSL_CLIENT_CERT</Property>
         <Property name="certificate-info">flow.certinfo</Property>
     </Properties>
     <ClassName>com.exco.eidas.EiDASCertificateParserCallout</ClassName>
@@ -43,7 +43,7 @@ Within the Properties, you can specify the input and output for the eIDAS callou
 
 | name             | required | meaning                                 |
 | ---------------- | -------- | ----------------------------------------|
-| pem-certificate  | required | name of context variable that contains certificate in pem format |
+| certificate-pem  | required | name of context variable that contains certificate in pem format |
 | certificate-info | required | name of the context variable that will contain certificate information |
 
 If the callout fails for some reason, such as misconfiguration, these variables will be set:

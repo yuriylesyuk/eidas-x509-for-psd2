@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <AssignMessage async="false" continueOnError="false" enabled="true" name="AssignMessage.Log-Certificate-Info-JSON">
-    <AssignTo createNew="true" type="response"/>
+    <DisplayName>AssignMessage.Log-Certificate-Info-JSON</DisplayName>
+    <FaultRules/>
+    <Properties/>
     <Set>
         <Payload contentType="application/json">{flow.certinfo}</Payload>
     </Set>
     <IgnoreUnresolvedVariables>false</IgnoreUnresolvedVariables>
+    <AssignTo type="response" transport="http" createNew="true"/>
 </AssignMessage>

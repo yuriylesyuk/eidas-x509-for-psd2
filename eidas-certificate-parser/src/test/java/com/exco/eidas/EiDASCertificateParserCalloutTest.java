@@ -120,16 +120,18 @@ public class EiDASCertificateParserCalloutTest {
 				+ "-----END CERTIFICATE-----");
 
 		Map<String, String> properties = new HashMap<String, String>();
+		
+		properties.put("operation", "show");
 
+		properties.put("certificate-pem", "request.header.SSL_CLIENT_CERT");
 		properties.put("certificate-info", "context.certinfo");
-		properties.put("pem-certificate", "request.header.SSL_CLIENT_CERT");
 
 		EiDASCertificateParserCallout callout = new EiDASCertificateParserCallout(properties);
 
 		callout.execute(messageContext, executionContext);
 
 		// TODO
-		assertEquals(messageContext.getVariable("context.certinfo"),
+		assertEquals(
 				"{\n" + 
 				"  \"certInfo\": {\n" + 
 				"    \"basicConstraints\": \"CA: false\",\n" + 
@@ -148,12 +150,13 @@ public class EiDASCertificateParserCalloutTest {
 				"    \"ncaId\": \"Germany\",\n" + 
 				"    \"rolesOfPSP\": \"[\\\"PSP_AS\\\",\\\"PSP_PI\\\",\\\"PSP_AI\\\",\\\"PSP_IC\\\"]\"\n" + 
 				"  }\n" + 
-				"}");
+				"}", messageContext.getVariable("context.certinfo")
+		);
 	}
 
 
 	@Test
-	public void signePsd2CsrAndIssuePsd2Certificate() {
+	public void signPsd2CsrAndIssuePsd2Certificate() {
 		
 		messageContext.setVariable("context.certinfo", "" +
 				"{" + 
@@ -241,7 +244,7 @@ public class EiDASCertificateParserCalloutTest {
 		properties.put("privatekey-passphrase", "private.privatekey-passphrase");
 		
 		// Output Parameters:
-		properties.put("pem-certificate", "context.certificate");
+		properties.put("certificate-pem", "context.certificate");
 
 		EiDASCertificateParserCallout callout = new EiDASCertificateParserCallout(properties);
 

@@ -480,8 +480,6 @@ public class EiDASCertificate {
 		
 		
 		try{
-
-			 Security.addProvider(new BouncyCastleProvider());
 			
 			final PEMParser parser = new PEMParser(br);
 			 

@@ -37,6 +37,10 @@ public class EiDASCertificateParserCallout implements Execution {
 
 		try {
 			 operation = ((String)this.properties.get("operation") );
+			 if( operation == null ) {
+				 throw new RuntimeException( "EIDAS: operation is not set. Supported operations: sign|show");
+			 }
+			 
 					 
 			 if( operation.equals("sign") ){
 				 // 'sign'
@@ -53,17 +57,16 @@ public class EiDASCertificateParserCallout implements Execution {
 				X509Certificate cert = eidascert.createCertificateFromJson( certificateInfo, keyPair.getPrivate(), publicKey );
 					
 					
-				String certificateVariable = this.properties.get("pem-certificate");
+				String certificateVariable = this.properties.get("certificate-pem");
 				messageContext.setVariable(certificateVariable, eidascert.writeCertPem( cert ) );
 					
 	
-			 }else{
-				 // null or 'show' operator equals 'show'
+			 }else if( operation.equals("show") ){
 				
 				X509Certificate cert = null;
 				
 				
-				pemCertificate = ((String)messageContext.getVariable( this.properties.get("pem-certificate") )).replaceAll("\\\\n", "\n");
+				pemCertificate = ((String)messageContext.getVariable( this.properties.get("certificate-pem") )).replaceAll("\\\\n", "\n");
 				
 				if (!(pemCertificate == null) && pemCertificate.contains("BEGIN CERTIFICATE")) {
 					cert = eidascert.getCertificate( pemCertificate );
@@ -75,6 +78,10 @@ public class EiDASCertificateParserCallout implements Execution {
 				messageContext.setVariable(certificateVariable, eidascert.showPemAsJSON( cert ) );
 				
 			 
+			 }else {
+				 throw new RuntimeException( 
+					String.format( "EIDAS: Not supported operation: %s. Supported operations: sign|show", operation)
+				 );
 			 }
 
 			return ExecutionResult.SUCCESS;

@@ -2,29 +2,53 @@
 <ProxyEndpoint name="default">
     <Description/>
     <FaultRules/>
-    <PreFlow name="PreFlow">
-        <Request>
-            <Step>
-                <Name>JavaCallout.EiDAS-CertificateParse</Name>
-            </Step>
-            <Step>
-                <Name>AssignMessage.JsonMessage</Name>
-            </Step>
-            <Step>
-                <Name>ExtractVariables.GetFingerprintSha256</Name>
-            </Step>
-        </Request>
-        <Response>
-            <Step>
-                <Name>AssignMessage.Log-Certificate-Info-JSON</Name>
-            </Step>
-        </Response>
-    </PreFlow>
+    <Flows>
+        <Flow name="Sign">
+            <Description/>
+            <Request>
+                <Step>
+                    <Name>KeyValueMapOperations.GetIntermCA-Key</Name>
+                </Step>
+                <Step>
+                    <Name>JavaCallout.EiDAS-RequestSign</Name>
+                </Step>
+            </Request>
+            <Response>
+                <Step>
+                    <Name>AssignMessage.SignedCertificate</Name>
+                </Step>
+            </Response>
+            <Condition>(proxy.pathsuffix MatchesPath "/sign") and (request.verb = "POST")</Condition>
+        </Flow>
+        <Flow name="Show">
+            <Description/>
+            <Request>
+                <Step>
+                    <Name>JavaCallout.EiDAS-CertificateParse</Name>
+                </Step>
+                <Step>
+                    <Name>AssignMessage.JsonMessage</Name>
+                </Step>
+                <Step>
+                    <Name>ExtractVariables.GetFingerprintSha256</Name>
+                </Step>
+            </Request>
+            <Response>
+                <Step>
+                    <Name>AssignMessage.Log-Certificate-Info-JSON</Name>
+                </Step>
+            </Response>
+            <Condition>(proxy.pathsuffix MatchesPath "/show") and (request.verb = "GET")</Condition>
+        </Flow>
+    </Flows>
     <PostFlow name="PostFlow">
         <Request/>
         <Response/>
     </PostFlow>
-    <Flows/>
+    <PreFlow name="PreFlow">
+        <Request/>
+        <Response/>
+    </PreFlow>
     <HTTPProxyConnection>
         <BasePath>/eidas-parse-certificate</BasePath>
         <Properties/>

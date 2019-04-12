@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<JavaCallout async="false" continueOnError="false" enabled="true" name="JavaCallout.EiDAS-RequestSign">
+    <FaultRules/>
+    <Properties>
+        <Property name="operation">sign</Property>
+        <Property name="request-pem">request.header.REQUEST-PEM</Property>
+        <Property name="certificate-info">message.content</Property>
+        <Property name="privatekey-pem">flow.interim-ca-privatekey</Property>
+        <Property name="certificate-pem">flow.signed-certificate</Property>
+    </Properties>
+    <ClassName>com.exco.eidas.EiDASCertificateParserCallout</ClassName>
+    <ResourceURL>java://eidas-certificate-parser-1.0.0.jar</ResourceURL>
+</JavaCallout>

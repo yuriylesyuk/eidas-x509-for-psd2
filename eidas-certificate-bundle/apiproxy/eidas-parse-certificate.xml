@@ -1,19 +1,23 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<APIProxy revision="4" name="eidas-parse-certificate">
+<APIProxy revision="1" name="eidas-parse-certificate">
+    <Basepaths>/eidas-parse-certificate</Basepaths>
     <Basepaths>/eidas-parse-certificate</Basepaths>
     <ConfigurationVersion majorVersion="4" minorVersion="0"/>
-    <CreatedAt>1542308070235</CreatedAt>
-    <CreatedBy>admin@apigee.com</CreatedBy>
+    <CreatedAt>1555007660243</CreatedAt>
+    <CreatedBy>paul.chlebek@extern.f-i.de</CreatedBy>
     <Description></Description>
     <DisplayName>eidas-parse-certificate</DisplayName>
-    <LastModifiedAt>1542308070235</LastModifiedAt>
-    <LastModifiedBy>admin@apigee.com</LastModifiedBy>
-    <ManifestVersion>SHA-512:de20987db233e289b050e2506af8b606479c1a6b1ac354df0b57e37c73cdfb007fe69fe89ee6ef7b5cb6f31eba0f6bf33bb85c1cf479e30e8ff3a3348ff7b22a</ManifestVersion>
+    <LastModifiedAt>1555065395716</LastModifiedAt>
+    <LastModifiedBy>paul.chlebek@extern.f-i.de</LastModifiedBy>
+    <ManifestVersion>SHA-512:10c52bcb6feb76bad52f2f115f5457abc2b01a02b35264b9246b83d26a53b2e5c584daed0ff0cbb8bed3ff41b79729eafcfec34a5f90250738f22309b94daa36</ManifestVersion>
     <Policies>
         <Policy>AssignMessage.JsonMessage</Policy>
         <Policy>AssignMessage.Log-Certificate-Info-JSON</Policy>
+        <Policy>AssignMessage.SignedCertificate</Policy>
         <Policy>ExtractVariables.GetFingerprintSha256</Policy>
         <Policy>JavaCallout.EiDAS-CertificateParse</Policy>
+        <Policy>JavaCallout.EiDAS-RequestSign</Policy>
+        <Policy>KeyValueMapOperations.GetIntermCA-Key</Policy>
     </Policies>
     <ProxyEndpoints>
         <ProxyEndpoint>default</ProxyEndpoint>
