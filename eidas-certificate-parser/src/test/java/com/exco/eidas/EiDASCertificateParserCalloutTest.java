@@ -346,30 +346,6 @@ public class EiDASCertificateParserCalloutTest {
 				"  }" + 
 				"}" 
 		);
-		
-		
-// csr with no qcTypes
-//		messageContext.setVariable("request.header.CSR",
-//				"-----BEGIN CERTIFICATE REQUEST-----\n" + 
-//						"MIIDJDCCAgwCAQAwejERMA8GA1UEYQwIMTIzNDU5ODcxEjAQBgNVBAcMCU51cmVt\n" + 
-//						"YmVyZzEPMA0GA1UECAwGQmF5ZXJuMRAwDgYDVQQGEwdHZXJtYW55MQswCQYDVQQL\n" + 
-//						"DAJvdTEMMAoGA1UECgwDb3JnMRMwEQYDVQQDDApkb21haW5OYW1lMIIBIjANBgkq\n" + 
-//						"hkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAlfTKcv2bmQ8J7bJoD3rgoYMWSbhtgmd4\n" + 
-//						"X876ThUiY2FO2fDaGYVC2mF6/DSHTtayAQpa0mipIK56UfAqdOVqgWDDylOOLs/n\n" + 
-//						"f+R0J3ccmSibhC+949v5SI2/iuw0VQhvswi+P5ZKv9nhfl4Gyp7l+8zKtl0NSHOE\n" + 
-//						"PfpV/KxI3ZOQ9srpi1joiX9/R8u/1T4L9QTFIq62GoBcF2pPBrQK5k2nRnMReahi\n" + 
-//						"vMznNIAQK4bqdKfJAhjrXM3hYoPILe5uV6f46eNJMsTRIucJ2iQorwwVIxVCKx6F\n" + 
-//						"klb1jb3QfuFdlbM/nImZIuTGQXskYrMiqaom5aXm3p0ovOAJ3HT0twIDAQABoGUw\n" + 
-//						"YwYJKoZIhvcNAQkOMVYwVDBSBggrBgEFBQcBAwRGMEQwQgYGBACBmCcCMDgwJjAR\n" + 
-//						"BgcEAIGYJwEBDAZQU1BfQVMwEQYHBACBmCcBAgwGUFNQX1BJDAduY2FuYW1lDAVu\n" + 
-//						"Y2FpZDANBgkqhkiG9w0BAQsFAAOCAQEADty06i9b5zrqa/MCiT//uRrklX02RnpQ\n" + 
-//						"gQAdYqVEzGJH2rqT0cJ6KUtYjO8J60SC4yTiV1+p8lSxUHvS146VU8uEEZO486pG\n" + 
-//						"ajj6zsdwQDs+uK50uvigNaGTO9Hu5me7F+x2BqDsMlpizJqmqI2W67Sq5MsIaVfF\n" + 
-//						"031MOVujtC9e/J4n2Hb66lCHat8mRD4bvQqdp07XHpqRDJaFQiz9XIMfjooafhPL\n" + 
-//						"tX4e8OZP+hm7SjILz5ksrW7vqaRcUa8SJCAqHnezY900NOj7hxNYP71I8aZuE56p\n" + 
-//						"6iPPQQhrDSIhLvnnrrAhW/UkX1i6j2qbLEt79R4Wr/KKUsBlWHksDQ==\n" + 
-//						"-----END CERTIFICATE REQUEST-----"
-//		);
 
 		// csr with qcTypes
 		messageContext.setVariable("request.header.CSR",
@@ -446,32 +422,6 @@ public class EiDASCertificateParserCalloutTest {
 
 		// TODO
 		assertEquals(
-				
-//				// cert with no types
-//				"-----BEGIN CERTIFICATE-----\n" + 
-//				"MIID/jCCAuagAwIBAgIEb8KUejANBgkqhkiG9w0BAQUFADBsMQswCQYDVQQGEwJV\n" + 
-//				"SzEPMA0GA1UEBwwGTG9uZG9uMREwDwYDVQQKDAhFeGNvIFBMQzEgMB4GA1UECwwX\n" + 
-//				"Q0EgU2VydmljZXMvSW50ZXJtIERlc2sxFzAVBgNVBAMMDkV4Y28tSW50ZXJtLUNB\n" + 
-//				"MB4XDTE4MTEzMDEwMjMyN1oXDTE5MDYwNTEzMTE0Nlowga8xGTAXBgkqhkiG9w0B\n" + 
-//				"CQEWCmNhQHRlc3QuZGUxITAfBgNVBAMMGEF1dGhvcml0eSBDQSBEb21haW4gTmFt\n" + 
-//				"ZTELMAkGA1UECwwCSVQxFTATBgNVBAoMDEF1dGhvcml0eSBDQTESMBAGA1UEBwwJ\n" + 
-//				"RnJhbmtmdXJ0MQ8wDQYDVQQIDAZIZXNzZW4xCzAJBgNVBAYTAkRFMRkwFwYDVQRh\n" + 
-//				"DBBQU0RFUy1CREUtM0RGRDIxMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKC\n" + 
-//				"AQEAlfTKcv2bmQ8J7bJoD3rgoYMWSbhtgmd4X876ThUiY2FO2fDaGYVC2mF6/DSH\n" + 
-//				"TtayAQpa0mipIK56UfAqdOVqgWDDylOOLs/nf+R0J3ccmSibhC+949v5SI2/iuw0\n" + 
-//				"VQhvswi+P5ZKv9nhfl4Gyp7l+8zKtl0NSHOEPfpV/KxI3ZOQ9srpi1joiX9/R8u/\n" + 
-//				"1T4L9QTFIq62GoBcF2pPBrQK5k2nRnMReahivMznNIAQK4bqdKfJAhjrXM3hYoPI\n" + 
-//				"Le5uV6f46eNJMsTRIucJ2iQorwwVIxVCKx6Fklb1jb3QfuFdlbM/nImZIuTGQXsk\n" + 
-//				"YrMiqaom5aXm3p0ovOAJ3HT0twIDAQABo2QwYjAMBgNVHRMEBTADAQH/MFIGCCsG\n" + 
-//				"AQUFBwEDBEYwRDBCBgYEAIGYJwIwODAmMBEGBwQAgZgnAQEMBlBTUF9BUzARBgcE\n" + 
-//				"AIGYJwECDAZQU1BfUEkMB25jYW5hbWUMBW5jYWlkMA0GCSqGSIb3DQEBBQUAA4IB\n" + 
-//				"AQC1s3XqeMnghrgl0Si0s3IlpPA27s42eCa3ko3t3i+6GHLv/oB5EMrZJ0F/2Fum\n" + 
-//				"Bn9TojcS30u52epDzjYYWMFv4LQm70694MgkA2T+Dd9sa6G13hXoAVFlUChh3Syu\n" + 
-//				"NrDPQ3GHL0+O7IxneRdivS1fWJ4pL7ANvKFs6vmeTNLfNPI2rtuTC9THh2ENQ6/N\n" + 
-//				"q8dRik6FI/xzt/RsRjU+wQsLA8ydmAINopi0BlalZjI5WhKUiWxOJsoH+2b1pPiz\n" + 
-//				"gjNYnqxaIRGlKFqH5o5TFrNKJV4Q0MWXTHynPVAWlaH5fa2GLkTEvPRNY3bGJOoO\n" + 
-//				"n45lYCv65YwbSXhQUWS5TtXG\n" + 
-//				"-----END CERTIFICATE-----\n",
 				
 				// cert with no types				
 				"-----BEGIN CERTIFICATE-----\n" + 

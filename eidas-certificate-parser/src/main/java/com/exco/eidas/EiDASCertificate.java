@@ -45,6 +45,7 @@ import org.bouncycastle.asn1.ASN1InputStream;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.ASN1OctetString;
 import org.bouncycastle.asn1.ASN1Sequence;
+import org.bouncycastle.asn1.DERIA5String;
 import org.bouncycastle.asn1.DERSequence;
 import org.bouncycastle.asn1.DERUTF8String;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
@@ -53,10 +54,16 @@ import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.X500NameBuilder;
 import org.bouncycastle.asn1.x500.style.BCStyle;
+import org.bouncycastle.asn1.x509.AccessDescription;
 import org.bouncycastle.asn1.x509.BasicConstraints;
+import org.bouncycastle.asn1.x509.CRLDistPoint;
+import org.bouncycastle.asn1.x509.DistributionPoint;
+import org.bouncycastle.asn1.x509.DistributionPointName;
 import org.bouncycastle.asn1.x509.ExtendedKeyUsage;
 import org.bouncycastle.asn1.x509.Extension;
 import org.bouncycastle.asn1.x509.ExtensionsGenerator;
+import org.bouncycastle.asn1.x509.GeneralName;
+import org.bouncycastle.asn1.x509.GeneralNames;
 import org.bouncycastle.asn1.x509.KeyPurposeId;
 import org.bouncycastle.asn1.x509.KeyUsage;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
@@ -1236,28 +1243,87 @@ public class EiDASCertificate {
 	    
 	    
 		/// C&P section, psd2 attributes:
-		String ncaName = certinfo.get("ncaName").getAsString();
-		String ncaId =  certinfo.get("ncaId").getAsString();
 		
-		
-		List<String> rolesList = new ArrayList<String>();
-		
-		JsonArray roles = certinfo.get("rolesOfPSP").getAsJsonArray();
-		for( JsonElement r: roles) {
-			rolesList.add( r.getAsString() );
+		// TODO: check for existance of ncaName and ncaId below and throw exceptions
+		JsonElement roles = certinfo.get("rolesOfPSP");
+		if( roles != null ) {
+			String ncaName = certinfo.get("ncaName").getAsString();
+			
+			String ncaId =  certinfo.get("ncaId").getAsString();
+			
+			List<String> rolesList = new ArrayList<String>();
+
+			for( JsonElement r: roles.getAsJsonArray() ) {
+				rolesList.add( r.getAsString() );
+			}
+	
+		    QCStatement qcPsd2St = qcStatementForRoles( ncaName, ncaId, rolesList );
+		    
+		    qcsts.add( qcPsd2St );
 		}
 
-	    QCStatement qcPsd2St = qcStatementForRoles( ncaName, ncaId, rolesList );
+		certbuilder.addExtension(oid_QCStatements, false,  new DERSequence(qcsts) );
+		   
 	    
-	    qcsts.add( qcPsd2St );
+	    
+	    
+	    // 
+	    // AIA & CRL: for CSR sign or stand-alone cert [TODO] gen only
+	    //
+	    
+		// Authority Information Access
+		JsonElement aiaElement = certinfo.get("aia");
+		if( aiaElement != null ) {
+			JsonObject aia = aiaElement.getAsJsonObject();
+			
+			JsonElement caIssuers = aia.get( "caIssuers" );
+			if( caIssuers == null ) {
+				throw new RuntimeException( "EIDAS: aia object does not have defined: caIssuers." );
+			}
+			AccessDescription adCaIssuers = new AccessDescription(AccessDescription.id_ad_caIssuers,
+			        new GeneralName( GeneralName.uniformResourceIdentifier, 
+			        	new DERIA5String( 
+			        			caIssuers.getAsString() 
+			        )));
+			JsonElement ocsp = aia.get( "ocsp" );
+			if( ocsp == null ) {
+				throw new RuntimeException( "EIDAS: aia object does not have defined: ocsp." );
+			}
+			AccessDescription adOcsp = new AccessDescription(AccessDescription.id_ad_ocsp,
+			        new GeneralName( GeneralName.uniformResourceIdentifier, 
+			        		new DERIA5String(
+			        				ocsp.getAsString()
+			        )));
+			 
+			ASN1EncodableVector aiaASN1 = new ASN1EncodableVector();
+			aiaASN1.add( adCaIssuers );
+			aiaASN1.add( adOcsp );
+			 
+			certbuilder.addExtension(Extension.authorityInfoAccess, false, new DERSequence( aiaASN1 ));
+		}
+		
+		// CRL Distribution Points
+		JsonElement crlDps = certinfo.get("crlDPs");
+		if( crlDps != null ) {
+			List<DistributionPoint> dps = new ArrayList<DistributionPoint>();
+			
+			for( JsonElement dp: crlDps.getAsJsonArray() ) {
+				DistributionPointName distPointOne = new DistributionPointName(new GeneralNames(
+				        new GeneralName(
+				        	GeneralName.uniformResourceIdentifier,
+				        	dp.getAsString()
+				   )));
 
-	    certbuilder.addExtension(oid_QCStatements, false,  new DERSequence(qcsts) );
+				dps.add( new DistributionPoint(distPointOne, null, null) );
+			}
+	
+			certbuilder.addExtension(Extension.cRLDistributionPoints, false, 
+					new CRLDistPoint( dps.toArray( new DistributionPoint[0] ) )
+				);
+		}
 		   
-		   
+		// Sign and build
 		ContentSigner signer =  new JcaContentSignerBuilder("SHA1withRSA").build( privateKey );;
-		
-		
-		
 		
 	    X509CertificateHolder cert = certbuilder.build( signer );
 	
