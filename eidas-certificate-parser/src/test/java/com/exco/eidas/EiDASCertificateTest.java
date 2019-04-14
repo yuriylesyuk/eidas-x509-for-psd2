@@ -18,13 +18,23 @@ import java.security.spec.X509EncodedKeySpec;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.x500.X500Name;
+import org.bouncycastle.asn1.x509.KeyPurposeId;
+import org.bouncycastle.asn1.x509.KeyUsage;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.junit.Before;
 import org.junit.Test;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 public class EiDASCertificateTest {
 
@@ -399,7 +409,7 @@ assertEquals(keyPem, "-----BEGIN RSA PRIVATE KEY-----\n" +
 	
 	
 	@Test
-	public void createCertficationRequestFromJson() {
+	public void createCSRFromJson() {
 				
 		
 		String json = "" +
@@ -417,6 +427,64 @@ assertEquals(keyPem, "-----BEGIN RSA PRIVATE KEY-----\n" +
 			"    \"version\": 3," + 
 			"    \"fingerprintSha256\": \"8345ed6b67056bb641e6ccac5a0579acdf80663de59f7b92f561b66bb6d8876b\"," + 
 			"    \"fingerprintSha1\": \"cc1adb500568facbff32b475161936dc5becfc4b\"," + 
+			"    \"qcTypes\": [\"eSeal\",\"eWeb\"]," + 
+			"    \"ncaName\": \"ncaname\"," + 
+			"    \"ncaId\": \"ncaid\"," + 
+			"    \"rolesOfPSP\": [\"PSP_AS\",\"PSP_PI\"]" + 
+			"  }" + 
+			"}";
+		
+		
+		
+		EiDASCertificate eidascert = new EiDASCertificate();
+		String keyPem = null;
+		String pem = null;
+		
+		Security.addProvider(new BouncyCastleProvider());
+
+		try {
+			
+			KeyPair keyPair = eidascert.genKeyPair();
+			
+			keyPem = eidascert.privateKeyPem( keyPair, null );
+			
+			PKCS10CertificationRequest csr = eidascert.createCertificationRequestFromJson(json, keyPair);
+			
+
+			pem = eidascert.writeCSRPem( csr );
+			
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		} catch (NoSuchProviderException e) {
+			e.printStackTrace();
+		} catch (OperatorCreationException e) {
+			e.printStackTrace();
+		}
+
+	}
+	
+	@Test
+	public void createCSRWithKUandEKUFromJson() {
+				
+		
+		String json = "" +
+			"{" +
+			"  \"certInfo\": {" + 
+			"    \"basicConstraints\": \"CA: true\"," + 
+			"    \"subject\": \"OID.2.5.4.97\\u003d12345987, L\\u003dNuremberg, ST\\u003dBayern, C\\u003dGermany, OU\\u003dou, O\\u003dorg, CN\\u003ddomainName\"," + 
+			"    \"issuer\": \"EMAILADDRESS\\u003dca@test.de, CN\\u003dAuthority CA Domain Name, OU\\u003dIT, O\\u003dAuthority CA, L\\u003dFrankfurt, ST\\u003dHessen, C\\u003dDE\"," + 
+			"    \"validFrom\": 1543573407000," + 
+			"    \"expiryDate\": 1543573407000," + 
+			"    \"isValid\": \"\\u003cTODO\\u003e\"," + 
+			"    \"publicKey\": \"RSA, 2048\"," + 
+			"    \"serialNumber\": 1875022970," + 
+			"    \"sigAlgName\": \"SHA1withRSA\"," + 
+			"    \"version\": 3," + 
+			"    \"keyUsage\": [\"digitalSignature\",\"keyCertSign\"]," + 
+			"    \"extKeyUsage\": [\"serverAuth\",\"clientAuth\"]," + 
 			"    \"qcTypes\": [\"eSeal\",\"eWeb\"]," + 
 			"    \"ncaName\": \"ncaname\"," + 
 			"    \"ncaId\": \"ncaid\"," + 
@@ -592,6 +660,215 @@ assertEquals(keyPem, "-----BEGIN RSA PRIVATE KEY-----\n" +
 		}
 
 	}
+
+	
+	
+	@Test
+	public void signCertficationRequestWithKUandEKUFromJson() {
+				
+		
+		String json = "" +
+			"{" + 
+			"  \"certInfo\": {" + 
+			"    \"basicConstraints\": \"CA: true\"," + 
+			"    \"subject\": \"emailAddress\\u003dca@test.de, CN\\u003dAuthority CA Domain Name, OU\\u003dIT, O\\u003dAuthority CA, L\\u003dFrankfurt, ST\\u003dHessen, C\\u003dDE, OID.2.5.4.97\\u003dPSDES-BDE-3DFD21\"," +
+			"    \"issuer\": \"C\\u003dUK, L\\u003dLondon, O\\u003dExco PLC, OU\\u003dCA Services/Interm Desk, CN\\u003dExco-Interm-CA\","+
+			"    \"validFrom\": 1543573407000," + 
+			"    \"expiryDate\": 1559740306000," + 
+			"    \"isValid\": \"\\u003cTODO\\u003e\"," + 
+			"    \"publicKey\": \"RSA, 2048\"," + 
+			"    \"serialNumber\": 1875022970," + 
+			"    \"sigAlgName\": \"SHA1withRSA\"," + 
+			"    \"version\": 3," + 
+			"    \"keyUsage\": [\"digitalSignature\",\"keyCertSign\"]," + 
+			"    \"extKeyUsage\": [\"serverAuth\",\"clientAuth\"]," + 
+			"    \"ncaName\": \"ncaname\"," + 
+			"    \"ncaId\": \"ncaid\"," + 
+			"    \"rolesOfPSP\": [\"PSP_AS\",\"PSP_PI\"]" + 
+			"  }" + 
+			"}";
+		
+		// intermediate_ca.pem 
+		String imcaKeyPem = "-----BEGIN RSA PRIVATE KEY-----\n" + 
+				"MIIEowIBAAKCAQEAuvYEVs1/k1HsULB5/zSRcXXmECVKVsZCcifvavrTtho6VaEZ\n" + 
+				"Mf/AXTce5p5McmxOe2PSCOd8b1qOH1+inqfMKVCJptb5VOAEW2ZSOIHKWggHFqG3\n" + 
+				"nMN9G+rdMKc+jwtJmLmeI1DvkrjkyDaYSsYsfg0tCswBijhcof7dGSyYHBmR6njP\n" + 
+				"9qMIWky/h3v55uU0oBPXoFjrRhIHNASLbLY/v+8ADbI9vAfK5p9ccNAbt9sTXwGV\n" + 
+				"jVEJ0KLMZQsOFsmAelBIU8TSiYpJS53IGtbL8wEnCgbcWFKYOfRar+NBKjJ52pBd\n" + 
+				"DWrFV5VDbfWvvaZ/NKCta5RU0lJgiYbj340dgwIDAQABAoIBAGUPy3SojMezxwwu\n" + 
+				"+SNM5TnxwzUDE1YowY43rCGmCH8tWk8jUB1I5FD/FMMQ2r4Xca0dXlHV39vJlX28\n" + 
+				"Eom0ppXGpUH8fra0iWZmvxcwgZN9N2eybzBcM+q9YGeGYDiun0/hNmxcucQUEgdw\n" + 
+				"C46P5UkWEjz93e87XEdtH1MWWfsFoX+ViyAC/3UKRMvB2ELCeOQtpLH9gQrlkIFh\n" + 
+				"dS3kUgjQgwJuoWcbVIQ1g8vgRjtTQOZqm6MuREVa1Khcyg5uwn7PEJjV/xyQaBny\n" + 
+				"zA8S52RV1Rsx+a9ka8LhS56n5vgA/HTodgVarsUMASk6GKYu42LBQ1PiNTtxFKNC\n" + 
+				"CO7/isECgYEAxC8sghNygQ/18sWjsDzr8sqOqvqMyLqsyC/b1DhfPgNCViZ4wrEw\n" + 
+				"LWpjcy2h/gjD4MtICiJFWkMAAPsddfXRB6II0aNAksM1kr8kWSWJXP4XrPZVBsGl\n" + 
+				"/mJwDpgFkO6uABP843DnPHvmcBD/9gCHi5f2rONOJzuHW++PZLsBhvMCgYEA8/bv\n" + 
+				"yaJlu4lXFw7jK6QzpgAx72oT2yU9XHMRrI66/ac1VE7HzBSQR5FKlKHNG+FYozk2\n" + 
+				"GOWTdUEDr2VZwURFxcs++/VOljZI4tCN6a08CyM9CB/tohHES4Nz1QDu3GLUPJHG\n" + 
+				"HEcFbynLQKUvaDHfcyFg0C4MrWV+JMj593fY0zECgYBdcp7/wqWrJmAf6NaEjzBQ\n" + 
+				"sP1uIfRHdOvyWyGaH9P2JPVHNgIVsvLg3ylJ5rWf3Kr4+7tv4E0qpnls/jBVTObp\n" + 
+				"fNw4h0ut3MA7C0MUF5Yrrni2kYuEsV8RIfCAcxdLpvVI4jx2VgQ/QkFMpjxWAICQ\n" + 
+				"FK2SQp+qfmeGekDSWWVr0wKBgQCzlFSDlr/N4NWzimjb6f1+tuwK8Il3KZ1WXPlo\n" + 
+				"jJPGPPu7eFYHuidOFvvQFp31ZNYrJ+TTRMJbcCT3SeJcqhW199r/+l0DoyfZlWyw\n" + 
+				"0qy9Ag5d2arBPtTARR3Rb+NjZHgXsbIjhH/SiPAtQKp5xyRVCf/KnesFBA1rpGij\n" + 
+				"qZt4MQKBgFK4S3LMP7rlNkvHmRZ+6oz0Dquz5qza/60B0wl2/QiR/xv8bfC3RX+E\n" + 
+				"aYd6zLNMPEHmVy49bCeNKtEcjiJOWP+zpDIr6bjvgH3cLsVM1bn5GS9eYUIsaARb\n" + 
+				"eZc6juNzKPKZhY4MKm9daoWE6lGs02tkdD6pVaB5K6GIIT4LuZML\n" + 
+				"-----END RSA PRIVATE KEY-----";
+	
+		
+		String csrPem = "-----BEGIN CERTIFICATE REQUEST-----\n" + 
+				"MIIDJDCCAgwCAQAwejERMA8GA1UEYQwIMTIzNDU5ODcxEjAQBgNVBAcMCU51cmVt\n" + 
+				"YmVyZzEPMA0GA1UECAwGQmF5ZXJuMRAwDgYDVQQGEwdHZXJtYW55MQswCQYDVQQL\n" + 
+				"DAJvdTEMMAoGA1UECgwDb3JnMRMwEQYDVQQDDApkb21haW5OYW1lMIIBIjANBgkq\n" + 
+				"hkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAlfTKcv2bmQ8J7bJoD3rgoYMWSbhtgmd4\n" + 
+				"X876ThUiY2FO2fDaGYVC2mF6/DSHTtayAQpa0mipIK56UfAqdOVqgWDDylOOLs/n\n" + 
+				"f+R0J3ccmSibhC+949v5SI2/iuw0VQhvswi+P5ZKv9nhfl4Gyp7l+8zKtl0NSHOE\n" + 
+				"PfpV/KxI3ZOQ9srpi1joiX9/R8u/1T4L9QTFIq62GoBcF2pPBrQK5k2nRnMReahi\n" + 
+				"vMznNIAQK4bqdKfJAhjrXM3hYoPILe5uV6f46eNJMsTRIucJ2iQorwwVIxVCKx6F\n" + 
+				"klb1jb3QfuFdlbM/nImZIuTGQXskYrMiqaom5aXm3p0ovOAJ3HT0twIDAQABoGUw\n" + 
+				"YwYJKoZIhvcNAQkOMVYwVDBSBggrBgEFBQcBAwRGMEQwQgYGBACBmCcCMDgwJjAR\n" + 
+				"BgcEAIGYJwEBDAZQU1BfQVMwEQYHBACBmCcBAgwGUFNQX1BJDAduY2FuYW1lDAVu\n" + 
+				"Y2FpZDANBgkqhkiG9w0BAQsFAAOCAQEADty06i9b5zrqa/MCiT//uRrklX02RnpQ\n" + 
+				"gQAdYqVEzGJH2rqT0cJ6KUtYjO8J60SC4yTiV1+p8lSxUHvS146VU8uEEZO486pG\n" + 
+				"ajj6zsdwQDs+uK50uvigNaGTO9Hu5me7F+x2BqDsMlpizJqmqI2W67Sq5MsIaVfF\n" + 
+				"031MOVujtC9e/J4n2Hb66lCHat8mRD4bvQqdp07XHpqRDJaFQiz9XIMfjooafhPL\n" + 
+				"tX4e8OZP+hm7SjILz5ksrW7vqaRcUa8SJCAqHnezY900NOj7hxNYP71I8aZuE56p\n" + 
+				"6iPPQQhrDSIhLvnnrrAhW/UkX1i6j2qbLEt79R4Wr/KKUsBlWHksDQ==\n" + 
+				"-----END CERTIFICATE REQUEST-----";
+		
+		EiDASCertificate eidascert = new EiDASCertificate();
+		
+		PrivateKey imcaPrivateKey = null;
+		PublicKey csrPublicKey = null;
+		
+		String pem = null;
+		
+		Security.addProvider(new BouncyCastleProvider());
+
+		try {
+			
+			imcaPrivateKey = eidascert.getKeyPair( imcaKeyPem, null ).getPrivate();
+			
+			
+			csrPublicKey = eidascert.getPublicKeyFromCSRPem( csrPem );
+			
+			
+			
+			X509Certificate cert = eidascert.createCertificateFromJson( json, imcaPrivateKey, csrPublicKey ); 
+			
+			
+			pem = eidascert.writeCertPem( cert );
+			
+			assertEquals( pem, "-----BEGIN CERTIFICATE-----\n" + 
+					"MIIEMjCCAxqgAwIBAgIEb8KUejANBgkqhkiG9w0BAQUFADBsMQswCQYDVQQGEwJV\n" + 
+					"SzEPMA0GA1UEBwwGTG9uZG9uMREwDwYDVQQKDAhFeGNvIFBMQzEgMB4GA1UECwwX\n" + 
+					"Q0EgU2VydmljZXMvSW50ZXJtIERlc2sxFzAVBgNVBAMMDkV4Y28tSW50ZXJtLUNB\n" + 
+					"MB4XDTE4MTEzMDEwMjMyN1oXDTE5MDYwNTEzMTE0Nlowga8xGTAXBgkqhkiG9w0B\n" + 
+					"CQEWCmNhQHRlc3QuZGUxITAfBgNVBAMMGEF1dGhvcml0eSBDQSBEb21haW4gTmFt\n" + 
+					"ZTELMAkGA1UECwwCSVQxFTATBgNVBAoMDEF1dGhvcml0eSBDQTESMBAGA1UEBwwJ\n" + 
+					"RnJhbmtmdXJ0MQ8wDQYDVQQIDAZIZXNzZW4xCzAJBgNVBAYTAkRFMRkwFwYDVQRh\n" + 
+					"DBBQU0RFUy1CREUtM0RGRDIxMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKC\n" + 
+					"AQEAlfTKcv2bmQ8J7bJoD3rgoYMWSbhtgmd4X876ThUiY2FO2fDaGYVC2mF6/DSH\n" + 
+					"TtayAQpa0mipIK56UfAqdOVqgWDDylOOLs/nf+R0J3ccmSibhC+949v5SI2/iuw0\n" + 
+					"VQhvswi+P5ZKv9nhfl4Gyp7l+8zKtl0NSHOEPfpV/KxI3ZOQ9srpi1joiX9/R8u/\n" + 
+					"1T4L9QTFIq62GoBcF2pPBrQK5k2nRnMReahivMznNIAQK4bqdKfJAhjrXM3hYoPI\n" + 
+					"Le5uV6f46eNJMsTRIucJ2iQorwwVIxVCKx6Fklb1jb3QfuFdlbM/nImZIuTGQXsk\n" + 
+					"YrMiqaom5aXm3p0ovOAJ3HT0twIDAQABo4GXMIGUMAwGA1UdEwQFMAMBAf8wDgYD\n" + 
+					"VR0PAQH/BAQDAgKEMCAGA1UdJQEB/wQWMBQGCCsGAQUFBwMBBggrBgEFBQcDAjBS\n" + 
+					"BggrBgEFBQcBAwRGMEQwQgYGBACBmCcCMDgwJjARBgcEAIGYJwEBDAZQU1BfQVMw\n" + 
+					"EQYHBACBmCcBAgwGUFNQX1BJDAduY2FuYW1lDAVuY2FpZDANBgkqhkiG9w0BAQUF\n" + 
+					"AAOCAQEAPU+w8rWPxgpbm3sT15cGV+Q14sFtH24l71l7fHL367ZqEY5Pu2bnT2QW\n" + 
+					"EziUBusBdSKCL2xHCT8XUZoqXDSVxSEeDUIWXVSjWumOKLEuzrGyikBWwzwqmCC5\n" + 
+					"NKT6BzDJpIJbDY+rpc4Fk3PizvVfNpS8Qe9wZo46NQX3B9T5rJi3TOjfJm9vprdA\n" + 
+					"yzv8h1fVjJHk6tAZjcihBJoZls2o8cYVrTCbPjT+3sz/FIXbTtoMSRLSMCiK+3VQ\n" + 
+					"eLpG0X1Rti6PoI1YEyXA3PJhjvw4wzAxqXT3vPHIOmCqZa0r12f5PeCeo+Mbnw/I\n" + 
+					"/J/PmxZHgbXBCQshAx4vfIIXqBwXEw==\n" + 
+					"-----END CERTIFICATE-----\n" ); 
+
+					
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (OperatorCreationException e) {
+			e.printStackTrace();
+		} catch (CertificateException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
+	
+	@Test
+	public void testKeyUsage() {
+		
+		// https://www.ibm.com/support/knowledgecenter/SSKTMJ_9.0.1/admin/conf_keyusageextensionsandextendedkeyusage_r.html
+		
+		//
+		// Roundtrip for EKUs
+		EiDASCertificate eidascert = new EiDASCertificate();
+
+		String json = 
+				  "{\n" + 
+				  "	\"keyUsage\": [\n" + 
+				  "		\"digitalSignature\",\n" + 
+				  "		\"keyCertSign\"\n" + 
+				  "	]\n" + 
+				  "}";
+		
+		JsonObject jsonObject = (new JsonParser()).parse( json ).getAsJsonObject();
+		JsonArray jsonArray = jsonObject.getAsJsonArray("keyUsage");
+		
+		KeyUsage kus = new KeyUsage( eidascert.getKeyUsagesFromJson( jsonArray ) );
+		
+		JsonArray jsonArrayAfter = eidascert.getKeyUsageToJsonArray( kus );
+		
+		assertEquals( jsonArray, jsonArrayAfter );
+		
+		// 0, 5
+		boolean[] kusbits = new boolean[9];
+		kusbits[ 0 ] = true;
+		kusbits[ 5 ] = true;		
+		
+		JsonArray jsonArrayBitNames = eidascert.getKeyUsageToJsonArray( kusbits );
+		
+		assertEquals( jsonArray, jsonArrayBitNames );
+	}
+
+
+	@Test
+	public void testExtendedKeyUsage() {
+		
+		// https://www.ibm.com/support/knowledgecenter/SSKTMJ_9.0.1/admin/conf_keyusageextensionsandextendedkeyusage_r.html
+		
+		//
+		// Roundtrip for EKUs
+		EiDASCertificate eidascert = new EiDASCertificate();
+
+		String json = 
+				  "{\n" + 
+				  "	\"extKeyUsage\": [\n" + 
+				  "		\"serverAuth\",\n" + 
+				  "		\"clientAuth\"\n" + 
+				  "	]\n" + 
+				  "}";
+		JsonObject jsonObject = (new JsonParser()).parse( json ).getAsJsonObject();
+		JsonArray jsonArray = jsonObject.getAsJsonArray("extKeyUsage");
+		
+		List<KeyPurposeId> kps = eidascert.getExtKeyUsageFromJsonArray( jsonArray );
+		
+		JsonArray jsonArrayAfter = eidascert.getExtendedKeyUsageToJsonArray( kps );
+		
+		assertEquals( jsonArray, jsonArrayAfter);
+		
+		List<String> kpstrs = kps.stream().map( oid -> oid.toString()).collect(Collectors.toList() );
+		
+		List<KeyPurposeId> kpsoids =  (List<KeyPurposeId>)eidascert.convertStringToKeyPurposeIdList( kpstrs );
+		
+		assertEquals( kps, kpsoids );
+		
+	}
+	
 }
 
 

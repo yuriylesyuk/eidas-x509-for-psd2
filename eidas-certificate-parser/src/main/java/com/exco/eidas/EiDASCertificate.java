@@ -32,8 +32,10 @@ import java.util.Hashtable;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import javax.security.auth.x500.X500Principal;
 
@@ -52,9 +54,13 @@ import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.X500NameBuilder;
 import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.asn1.x509.BasicConstraints;
+import org.bouncycastle.asn1.x509.ExtendedKeyUsage;
 import org.bouncycastle.asn1.x509.Extension;
 import org.bouncycastle.asn1.x509.ExtensionsGenerator;
+import org.bouncycastle.asn1.x509.KeyPurposeId;
+import org.bouncycastle.asn1.x509.KeyUsage;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
+import org.bouncycastle.asn1.x509.X509Extension;
 import org.bouncycastle.asn1.x509.qualified.QCStatement;
 import org.bouncycastle.cert.CertIOException;
 import org.bouncycastle.cert.X509CertificateHolder;
@@ -94,6 +100,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.JsonPrimitive;
 
 public class EiDASCertificate {
 	
@@ -119,13 +126,13 @@ public class EiDASCertificate {
     
     
     // QcTypes
-    public static final Map<String,ASN1ObjectIdentifier> typesOids = new LinkedHashMap<String,ASN1ObjectIdentifier>() {{
+    public static final Map<String,ASN1ObjectIdentifier> qcTypesOids = new LinkedHashMap<String,ASN1ObjectIdentifier>() {{
         put( "eSign", oid_etsi_qcs_QcType_eSign );
         put( "eSeal", oid_etsi_qcs_QcType_eSeal );
         put( "eWeb", oid_etsi_qcs_QcType_eWeb );
     }};
     
-    public static final Map<ASN1ObjectIdentifier,String> typesNames = new LinkedHashMap<ASN1ObjectIdentifier,String>() {{
+    public static final Map<ASN1ObjectIdentifier,String> qcTypesNames = new LinkedHashMap<ASN1ObjectIdentifier,String>() {{
         put( oid_etsi_qcs_QcType_eSign, "eSign"  );
         put( oid_etsi_qcs_QcType_eSeal, "eSeal" );
         put( oid_etsi_qcs_QcType_eWeb, "eWeb" );
@@ -330,20 +337,35 @@ public class EiDASCertificate {
 			String fingerprintSha1 = Hashing.sha1().hashBytes(cert.getEncoded()).toString();
 			certAttributes.addProperty("fingerprintSha1", fingerprintSha1);
 	
+			// keyUsage:
+			boolean[] keyUsage = cert.getKeyUsage();
+			if( keyUsage != null ) {
+				JsonArray keyUsageJsonArray = getKeyUsageToJsonArray( keyUsage );
+				certAttributes.add( "keyUsage", keyUsageJsonArray );
+			}
+			
+		    // extentedKeyUsage:
+			List<String> extKeyUsage = cert.getExtendedKeyUsage();
+			if( extKeyUsage != null ) {
+				JsonArray ekus = getExtendedKeyUsageToJsonArray( 
+						convertStringToKeyPurposeIdList( extKeyUsage )
+					);
+				certAttributes.add( "extKeyUsage", ekus );
+			}
 			
 			
 			// qcExtentions: qcType
 			String qcTypes = getQcRoles( cert );
 			if( qcTypes != null ){
-				certAttributes.addProperty( "qcTypes", getQcRoles( cert ) );
+				certAttributes.addProperty( "qcTypes", qcTypes );
 			}
 			
 			// qcExtentions: psd2
-			Map<String,String> attrs = getNcaAndRolesOfPSP(cert);
+			Map<String,Object> attrs = getNcaAndRolesOfPSP(cert);
 			if( attrs != null ) {
-				certAttributes.addProperty("ncaName", attrs.get("ncaname"));
-				certAttributes.addProperty("ncaId", attrs.get("ncaid"));
-				certAttributes.addProperty("rolesOfPSP", attrs.get("roles") );
+				certAttributes.addProperty("ncaName", (String)attrs.get("ncaname"));
+				certAttributes.addProperty("ncaId", (String)attrs.get("ncaid"));
+				certAttributes.add("rolesOfPSP", (JsonArray)attrs.get("roles") );
 			}
 
 
@@ -408,7 +430,7 @@ public class EiDASCertificate {
 	
 					ASN1ObjectIdentifier oid = ASN1ObjectIdentifier.getInstance( types.getObjectAt(t) );
 	
-					typesList.add( typesNames.get( oid ) );
+					typesList.add( qcTypesNames.get( oid ) );
 				}
 				
 				typesJson = "[" + typesList.stream().map(t -> "\"" + t + "\"").reduce((ts, t) -> ts + "," + t).get() + "]"; 
@@ -420,9 +442,9 @@ public class EiDASCertificate {
 		return typesJson;
 	}
 	
-	private Map<String,String> getNcaAndRolesOfPSP( X509Certificate cert ) throws Exception {
+	private Map<String,Object> getNcaAndRolesOfPSP( X509Certificate cert ) throws Exception {
 
-		Map<String,String> attrs =null;
+		Map<String,Object> attrs =null;
 		
 
 		byte[] extv = cert.getExtensionValue(Extension.qCStatements.getId());
@@ -440,7 +462,7 @@ public class EiDASCertificate {
 				
 				String ncaName = null;
 				String ncaId = null;
-				List<String> rolesList = new ArrayList<String>();
+				JsonArray rolesList = new JsonArray();
 				
 
 				ASN1Encodable statementInfo = qcStatement.getStatementInfo();
@@ -462,15 +484,15 @@ public class EiDASCertificate {
 					ASN1ObjectIdentifier oid = ASN1ObjectIdentifier.getInstance(role.getObjectAt(0));
 					DERUTF8String roleOfPSPName = DERUTF8String.getInstance(role.getObjectAt(1));
 	
-					rolesList.add(roleOfPSPName.getString());
+					rolesList.add( new JsonPrimitive( roleOfPSPName.getString() ) );
 	
 				}
 				
 				
-				attrs = new HashMap<String,String>();
+				attrs = new HashMap<String,Object>();
 				attrs.put( "ncaname", ncaName );
 				attrs.put( "ncaid", ncaId );
-				attrs.put("roles", "[" + rolesList.stream().map(r -> "\"" + r + "\"").reduce((rs, r) -> rs + "," + r).get() + "]" );
+				attrs.put("roles", rolesList );
 				
 			}
 		}
@@ -638,13 +660,176 @@ public class EiDASCertificate {
 	    	
 	    	final ASN1EncodableVector type = new ASN1EncodableVector();
 	    	
-	    	types.add( typesOids.get( typeKey ) );
+	    	types.add( qcTypesOids.get( typeKey ) );
 	    }
 		
 	    DERSequence typesDS = new DERSequence( types );
 	    
 		return new QCStatement(oid_etsi_qcs_QcType, typesDS );
 	}
+
+	//
+	// Key Usage
+	//
+    // https://www.etsi.org/deliver/etsi_ts/119400_119499/119495/01.02.01_60/ts_119495v010201p.pdf	
+	private Map<String,Integer> keyUsagesOids = new LinkedHashMap<String,Integer>() {{
+        put( "digitalSignature", KeyUsage.digitalSignature );
+        put( "nonRepudiation", KeyUsage.nonRepudiation );
+        put( "keyEncipherment", KeyUsage.keyEncipherment );
+        put( "dataEncipherment", KeyUsage.dataEncipherment );
+        put( "keyAgreement", KeyUsage.keyAgreement );
+        put( "keyCertSign", KeyUsage.keyCertSign );
+        put( "cRLSign", KeyUsage.cRLSign );
+        put( "encipherOnly", KeyUsage.encipherOnly );
+        put( "decipherOnly", KeyUsage.decipherOnly );
+    }};
+    
+	private Map<Integer,String> keyUsagesNames = new LinkedHashMap<Integer,String>() {{
+        put( KeyUsage.digitalSignature, "digitalSignature" );
+        put( KeyUsage.nonRepudiation, "nonRepudiation" );
+        put( KeyUsage.keyEncipherment, "keyEncipherment" );
+        put( KeyUsage.dataEncipherment, "dataEncipherment" );
+        put( KeyUsage.keyAgreement, "keyAgreement" );
+        put( KeyUsage.keyCertSign, "keyCertSign" );
+        put( KeyUsage.cRLSign, "cRLSign" );
+        put( KeyUsage.encipherOnly, "encipherOnly" );
+        put( KeyUsage.decipherOnly, "decipherOnly" );
+    }};
+
+	private Map<Integer,String> keyUsagesBitNames = new LinkedHashMap<Integer,String>() {{
+        put( 0, "digitalSignature" );
+        put( 1, "nonRepudiation" );
+        put( 2, "keyEncipherment" );
+        put( 3, "dataEncipherment" );
+        put( 4, "keyAgreement" );
+        put( 5, "keyCertSign" );
+        put( 6, "cRLSign" );
+        put( 7, "encipherOnly" );
+        put( 8, "decipherOnly" );
+    }};
+    
+    protected int getKeyUsagesFromJson( JsonArray kusJson ) {
+    	
+    	int kus = 0;
+    	for( JsonElement ku : kusJson) {
+			String kuidName = ku.getAsString();
+			Integer kuid = keyUsagesOids.get( kuidName );
+			if( kuid == null ) {
+				throw new RuntimeException(
+						String.format( "EIDAS: Not supported Key Usage Id: %s", kuidName )
+				);
+			}else {
+				kus |= kuid;
+			}
+		}
+    	
+    	
+    	return kus;
+    }
+
+	protected JsonArray getKeyUsageToJsonArray( KeyUsage kus ) {
+		
+		JsonArray ja = new JsonArray();
+		
+		for (Map.Entry<Integer, String> ku : keyUsagesNames.entrySet()) {
+			if( kus.hasUsages( ku.getKey() ) ){
+				
+				JsonPrimitive kuJsonString = new JsonPrimitive( ku.getValue() );
+				ja.add( kuJsonString );
+			}
+		}
+
+		
+		return ja;
+	}
+
+
+	protected JsonArray getKeyUsageToJsonArray( boolean[] kus ) {
+		
+		JsonArray ja = new JsonArray();
+		
+		for( int i = 0; i < kus.length; i++ ) {
+			if(kus[i] ) {
+				JsonPrimitive kuJsonString = new JsonPrimitive( keyUsagesBitNames.get(i) );
+				ja.add( kuJsonString );
+			}
+		}
+		
+		return ja;
+	}
+	
+	//
+	// Extended Key Usage
+	//
+    // https://www.etsi.org/deliver/etsi_ts/119400_119499/119495/01.02.01_60/ts_119495v010201p.pdf	
+	private Map<String,KeyPurposeId> keyPurposeIds = new LinkedHashMap<String,KeyPurposeId>() {{
+        put( "codeSigning", KeyPurposeId.id_kp_codeSigning );
+        put( "serverAuth", KeyPurposeId.id_kp_serverAuth );
+        put( "clientAuth", KeyPurposeId.id_kp_clientAuth );
+        put( "emailProtection", KeyPurposeId.id_kp_emailProtection );
+    }};
+    
+	private Map<KeyPurposeId,String> keyPurposeIdsNames = new LinkedHashMap<KeyPurposeId,String>() {{
+        put( KeyPurposeId.id_kp_codeSigning, "codeSigning" );
+        put( KeyPurposeId.id_kp_serverAuth, "serverAuth" );
+        put( KeyPurposeId.id_kp_clientAuth, "clientAuth" );
+        put( KeyPurposeId.id_kp_emailProtection, "emailProtection" );
+    }};
+	
+    
+    
+    
+	//	
+    protected List<KeyPurposeId> getExtKeyUsageFromJsonArray( JsonArray ekusJson ) {
+
+		List<KeyPurposeId> ekus = null;
+		
+		for( JsonElement eku : ekusJson) {
+			if( ekus == null) {
+				ekus = new ArrayList<KeyPurposeId>();
+			}
+			String ekuidName = eku.getAsString();
+			KeyPurposeId ekuid = keyPurposeIds.get( ekuidName );
+			if( ekuid == null ) {
+				throw new RuntimeException(
+						String.format( "EIDAS: Not supported Key Purpose Id: %s", ekuidName )
+				);
+			}else {
+				ekus.add( ekuid );
+			}
+		}
+				
+		return ekus;
+	}
+	
+    protected List<KeyPurposeId> convertStringToKeyPurposeIdList( List<String> kpids ){
+    	
+    	return kpids.stream().map( 
+    			s -> KeyPurposeId.getInstance( new ASN1ObjectIdentifier( s ) )
+    	).collect( Collectors.toList() );
+    }
+    
+	protected JsonArray getExtendedKeyUsageToJsonArray( List<KeyPurposeId> ekus ) {
+		
+		JsonArray ja = new JsonArray();
+		
+		for( KeyPurposeId eku : ekus ){
+			String ekuName = keyPurposeIdsNames.get( eku );
+			if( ekuName == null ){
+						throw new RuntimeException(
+								String.format( "EIDAS: Unknowen Key Purpose Name: %s", ekuName )
+						);
+			}else{
+				
+				JsonPrimitive ekuJsonString = new JsonPrimitive( ekuName );
+				ja.add( ekuJsonString );
+			}
+		}
+
+		
+		return ja;
+	}
+
 	
 	// TODO: refactor with XREF:createCertificateFromJson
 	// XXXXXXXXXXX
@@ -679,21 +864,44 @@ public class EiDASCertificate {
 		    	keyPair.getPublic()
 		);
 		
+		/// C&P section: BOS
+		ExtensionsGenerator extensionGenerator = new ExtensionsGenerator();
+		
+				
+		// Key Usage 
+		JsonElement keyUsageJsonElement = certinfo.get("keyUsage");
+		if( keyUsageJsonElement != null ) {
+			int kus = getKeyUsagesFromJson( keyUsageJsonElement.getAsJsonArray() );
+			if( kus != 0 ) {
+				extensionGenerator.addExtension(Extension.keyUsage,true, new KeyUsage( kus) );
+			}
+		}
+		
+		// Extended Key Usage
+		JsonElement extKeyUsageJsonElement = certinfo.get("extKeyUsage");
+		if( extKeyUsageJsonElement != null ) {
+			List<KeyPurposeId> keyPurposeIds =  getExtKeyUsageFromJsonArray( extKeyUsageJsonElement.getAsJsonArray() );
+				extensionGenerator.addExtension(
+						Extension.extendedKeyUsage, true,
+			            new ExtendedKeyUsage( keyPurposeIds.toArray( new KeyPurposeId[0] ) )
+			);
+		}
 		
 		// QcStatements collector
 	    final ASN1EncodableVector qcsts = new ASN1EncodableVector();
 
-	    /// QcTypes Statement
+	    /// QcTypes Statement 
 		List<String> typesList = new ArrayList<String>();
 
-		JsonArray types = certinfo.get("qcTypes").getAsJsonArray();
-		for( JsonElement t: types ) {
-			typesList.add( t.getAsString() );
+		JsonElement types = certinfo.get("qcTypes");
+		if( types != null ) {
+			for( JsonElement t: types.getAsJsonArray() ) {
+				typesList.add( t.getAsString() );
+			}
+	
+			QCStatement qcTypeSt = qcStatementForQcType( typesList );
+		    qcsts.add( qcTypeSt );
 		}
-
-		QCStatement qcTypeSt = qcStatementForQcType( typesList );
-	    qcsts.add( qcTypeSt );
-
 	    
 		/// C&P section, psd2 attributes:
 		String ncaName = certinfo.get("ncaName").getAsString();
@@ -712,11 +920,6 @@ public class EiDASCertificate {
 	    qcsts.add( qcPsd2St );
 	    
 	    
-		/// C&P section: EOS
-		ExtensionsGenerator extensionGenerator = new ExtensionsGenerator();
-		
-		
-		
 		
 		extensionGenerator.addExtension(oid_QCStatements, false,
 				new DERSequence( qcsts ) 
@@ -993,19 +1196,42 @@ public class EiDASCertificate {
 		certbuilder.addExtension( Extension.basicConstraints, false, new BasicConstraints( isCA ) );
 		
 // TODO: refactor against createCertificationRequestFromJson
+		
+		// Key Usage 
+		JsonElement keyUsageJsonElement = certinfo.get("keyUsage");
+		if( keyUsageJsonElement != null ) {
+			int kus = getKeyUsagesFromJson( keyUsageJsonElement.getAsJsonArray() );
+			if( kus != 0 ) {
+				certbuilder.addExtension(Extension.keyUsage,true, new KeyUsage( kus) );
+			}
+		}
+
+		// Extended Key Usage
+		JsonElement extKeyUsageJsonElement = certinfo.get("extKeyUsage");
+		if( extKeyUsageJsonElement != null ) {
+			List<KeyPurposeId> keyPurposeIds =  getExtKeyUsageFromJsonArray( extKeyUsageJsonElement.getAsJsonArray() );
+			certbuilder.addExtension(
+						Extension.extendedKeyUsage, true,
+			            new ExtendedKeyUsage( keyPurposeIds.toArray( new KeyPurposeId[0] ) )
+			);
+		}
+		
+		
 		// QcStatements collector
 	    final ASN1EncodableVector qcsts = new ASN1EncodableVector();
 
 	    /// QcTypes Statement
 		List<String> typesList = new ArrayList<String>();
 
-		JsonArray types = certinfo.get("qcTypes").getAsJsonArray();
-		for( JsonElement t: types ) {
-			typesList.add( t.getAsString() );
+		JsonElement types = certinfo.get("qcTypes");
+		if( types != null ) {
+			for( JsonElement t: types.getAsJsonArray() ) {
+				typesList.add( t.getAsString() );
+			}
+	
+			QCStatement qcTypeSt = qcStatementForQcType( typesList );
+		    qcsts.add( qcTypeSt );
 		}
-
-		QCStatement qcTypeSt = qcStatementForQcType( typesList );
-	    qcsts.add( qcTypeSt );
 
 	    
 	    

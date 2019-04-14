@@ -154,7 +154,12 @@ public class EiDASCertificateParserCalloutTest {
 				"    \"fingerprintSha1\": \"b8f6a5c8b18a3e1b058f4ebd458683094caeacce\",\n" + 
 				"    \"ncaName\": \"Auth\",\n" + 
 				"    \"ncaId\": \"Germany\",\n" + 
-				"    \"rolesOfPSP\": \"[\\\"PSP_AS\\\",\\\"PSP_PI\\\",\\\"PSP_AI\\\",\\\"PSP_IC\\\"]\"\n" + 
+				"    \"rolesOfPSP\": [\n" + 
+				"      \"PSP_AS\",\n" + 
+				"      \"PSP_PI\",\n" + 
+				"      \"PSP_AI\",\n" + 
+				"      \"PSP_IC\"\n" + 
+				"    ]\n" + 
 				"  }\n" + 
 				"}"
 				
@@ -225,7 +230,90 @@ public class EiDASCertificateParserCalloutTest {
 				"    \"qcTypes\": \"[\\\"eSeal\\\",\\\"eWeb\\\"]\",\n" + 
 				"    \"ncaName\": \"ncaname\",\n" + 
 				"    \"ncaId\": \"ncaid\",\n" + 
-				"    \"rolesOfPSP\": \"[\\\"PSP_AS\\\",\\\"PSP_PI\\\"]\"\n" + 
+				"    \"rolesOfPSP\": [\n" + 
+				"      \"PSP_AS\",\n" + 
+				"      \"PSP_PI\"\n" + 
+				"    ]\n" +
+				"  }\n" + 
+				"}"
+				, messageContext.getVariable("context.certinfo")
+		);
+	}
+
+	
+	@Test
+	public void parsePsd2CertificateWithKEandEKUandQcTypesAndPSD2Roles() {
+
+		messageContext.setVariable("request.header.SSL_CLIENT_CERT",
+				// cert with qctypes
+				"-----BEGIN CERTIFICATE-----\n" + 
+				"MIIEMjCCAxqgAwIBAgIEb8KUejANBgkqhkiG9w0BAQUFADBsMQswCQYDVQQGEwJV\n" + 
+				"SzEPMA0GA1UEBwwGTG9uZG9uMREwDwYDVQQKDAhFeGNvIFBMQzEgMB4GA1UECwwX\n" + 
+				"Q0EgU2VydmljZXMvSW50ZXJtIERlc2sxFzAVBgNVBAMMDkV4Y28tSW50ZXJtLUNB\n" + 
+				"MB4XDTE4MTEzMDEwMjMyN1oXDTE5MDYwNTEzMTE0Nlowga8xGTAXBgkqhkiG9w0B\n" + 
+				"CQEWCmNhQHRlc3QuZGUxITAfBgNVBAMMGEF1dGhvcml0eSBDQSBEb21haW4gTmFt\n" + 
+				"ZTELMAkGA1UECwwCSVQxFTATBgNVBAoMDEF1dGhvcml0eSBDQTESMBAGA1UEBwwJ\n" + 
+				"RnJhbmtmdXJ0MQ8wDQYDVQQIDAZIZXNzZW4xCzAJBgNVBAYTAkRFMRkwFwYDVQRh\n" + 
+				"DBBQU0RFUy1CREUtM0RGRDIxMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKC\n" + 
+				"AQEAlfTKcv2bmQ8J7bJoD3rgoYMWSbhtgmd4X876ThUiY2FO2fDaGYVC2mF6/DSH\n" + 
+				"TtayAQpa0mipIK56UfAqdOVqgWDDylOOLs/nf+R0J3ccmSibhC+949v5SI2/iuw0\n" + 
+				"VQhvswi+P5ZKv9nhfl4Gyp7l+8zKtl0NSHOEPfpV/KxI3ZOQ9srpi1joiX9/R8u/\n" + 
+				"1T4L9QTFIq62GoBcF2pPBrQK5k2nRnMReahivMznNIAQK4bqdKfJAhjrXM3hYoPI\n" + 
+				"Le5uV6f46eNJMsTRIucJ2iQorwwVIxVCKx6Fklb1jb3QfuFdlbM/nImZIuTGQXsk\n" + 
+				"YrMiqaom5aXm3p0ovOAJ3HT0twIDAQABo4GXMIGUMAwGA1UdEwQFMAMBAf8wDgYD\n" + 
+				"VR0PAQH/BAQDAgKEMCAGA1UdJQEB/wQWMBQGCCsGAQUFBwMBBggrBgEFBQcDAjBS\n" + 
+				"BggrBgEFBQcBAwRGMEQwQgYGBACBmCcCMDgwJjARBgcEAIGYJwEBDAZQU1BfQVMw\n" + 
+				"EQYHBACBmCcBAgwGUFNQX1BJDAduY2FuYW1lDAVuY2FpZDANBgkqhkiG9w0BAQUF\n" + 
+				"AAOCAQEAPU+w8rWPxgpbm3sT15cGV+Q14sFtH24l71l7fHL367ZqEY5Pu2bnT2QW\n" + 
+				"EziUBusBdSKCL2xHCT8XUZoqXDSVxSEeDUIWXVSjWumOKLEuzrGyikBWwzwqmCC5\n" + 
+				"NKT6BzDJpIJbDY+rpc4Fk3PizvVfNpS8Qe9wZo46NQX3B9T5rJi3TOjfJm9vprdA\n" + 
+				"yzv8h1fVjJHk6tAZjcihBJoZls2o8cYVrTCbPjT+3sz/FIXbTtoMSRLSMCiK+3VQ\n" + 
+				"eLpG0X1Rti6PoI1YEyXA3PJhjvw4wzAxqXT3vPHIOmCqZa0r12f5PeCeo+Mbnw/I\n" + 
+				"/J/PmxZHgbXBCQshAx4vfIIXqBwXEw==\n" + 
+				"-----END CERTIFICATE-----\n"			
+
+				);
+
+		Map<String, String> properties = new HashMap<String, String>();
+		
+		properties.put("operation", "show");
+
+		properties.put("certificate-pem", "request.header.SSL_CLIENT_CERT");
+		properties.put("certificate-info", "context.certinfo");
+
+		EiDASCertificateParserCallout callout = new EiDASCertificateParserCallout(properties);
+
+		callout.execute(messageContext, executionContext);
+
+		assertEquals(
+				"{\n" + 
+				"  \"certInfo\": {\n" + 
+				"    \"basicConstraints\": \"CA: true\",\n" + 
+				"    \"subject\": \"organizationIdentifier=PSDES-BDE-3DFD21, C=DE, ST=Hessen, L=Frankfurt, O=Authority CA, OU=IT, CN=Authority CA Domain Name, E=ca@test.de\",\n" + 
+				"    \"issuer\": \"CN=Exco-Interm-CA, OU=CA Services/Interm Desk, O=Exco PLC, L=London, C=UK\",\n" + 
+				"    \"validFrom\": 1559740306000,\n" + 
+				"    \"expiryDate\": 1559740306000,\n" + 
+				"    \"isValid\": \"<TODO>\",\n" + 
+				"    \"publicKey\": \"RSA, 2048\",\n" + 
+				"    \"serialNumber\": 1875022970,\n" + 
+				"    \"sigAlgName\": \"SHA1withRSA\",\n" + 
+				"    \"version\": 3,\n" + 
+				"    \"fingerprintSha256\": \"3f66843bf6e114e83c004055f0c51b826b0518e17f43fea8c010657849ea864f\",\n" + 
+				"    \"fingerprintSha1\": \"9c2b35c18432c9e661b398c8f4c79d7b740808f5\",\n" + 
+				"    \"keyUsage\": [\n" + 
+				"      \"digitalSignature\",\n" + 
+				"      \"keyCertSign\"\n" + 
+				"    ],\n" + 
+				"    \"extKeyUsage\": [\n" + 
+				"      \"serverAuth\",\n" + 
+				"      \"clientAuth\"\n" + 
+				"    ],\n" + 
+				"    \"ncaName\": \"ncaname\",\n" + 
+				"    \"ncaId\": \"ncaid\",\n" + 
+				"    \"rolesOfPSP\": [\n" + 
+				"      \"PSP_AS\",\n" + 
+				"      \"PSP_PI\"\n" + 
+				"    ]\n" + 
 				"  }\n" + 
 				"}"
 				, messageContext.getVariable("context.certinfo")
@@ -410,7 +498,7 @@ public class EiDASCertificateParserCalloutTest {
 				"ynW6+5/wWrXrpyF1YSErgP2yLZFYy/u2FNbNUDwaEz5oJA0Ny1MsVMTBDe2nyRtX\n" + 
 				"ViJU7mENDV6x6LPIngFPt8hIc0EANr1Z/uzMlA+DA4XQxhg+KZRaIfW1653Zq1HM\n" + 
 				"0Do=\n" + 
-				"-----END CERTIFICATE-----",				
+				"-----END CERTIFICATE-----\n",				
 				
 				messageContext.getVariable("context.certificate")
 		);
