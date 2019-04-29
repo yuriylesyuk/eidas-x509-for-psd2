@@ -227,7 +227,10 @@ public class EiDASCertificateParserCalloutTest {
 				"    \"version\": 3,\n" + 
 				"    \"fingerprintSha256\": \"357c4c53c3aa567b4c19346e2570aaf004ed9362f4bd28c8d5232da319ac9776\",\n" + 
 				"    \"fingerprintSha1\": \"215ef1f43a7585f68556b2067a4e746c8bc38b8c\",\n" + 
-				"    \"qcTypes\": \"[\\\"eSeal\\\",\\\"eWeb\\\"]\",\n" + 
+				"    \"qcTypes\": [\n" + 
+				"      \"eSeal\",\n" + 
+				"      \"eWeb\"\n" + 
+				"    ],\n" + 
 				"    \"ncaName\": \"ncaname\",\n" + 
 				"    \"ncaId\": \"ncaid\",\n" + 
 				"    \"rolesOfPSP\": [\n" + 

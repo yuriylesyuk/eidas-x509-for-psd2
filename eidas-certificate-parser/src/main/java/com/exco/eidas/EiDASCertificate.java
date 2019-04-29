@@ -351,7 +351,7 @@ public class EiDASCertificate {
 				certAttributes.add( "keyUsage", keyUsageJsonArray );
 			}
 			
-		    // extentedKeyUsage:
+		    // extendedKeyUsage:
 			List<String> extKeyUsage = cert.getExtendedKeyUsage();
 			if( extKeyUsage != null ) {
 				JsonArray ekus = getExtendedKeyUsageToJsonArray( 
@@ -362,9 +362,9 @@ public class EiDASCertificate {
 			
 			
 			// qcExtentions: qcType
-			String qcTypes = getQcRoles( cert );
+			JsonArray qcTypes = getQcRoles( cert );
 			if( qcTypes != null ){
-				certAttributes.addProperty( "qcTypes", qcTypes );
+				certAttributes.add( "qcTypes", qcTypes );
 			}
 			
 			// qcExtentions: psd2
@@ -408,10 +408,9 @@ public class EiDASCertificate {
 	
 	}
 	
-	private String getQcRoles( X509Certificate cert ) throws Exception {
+	private JsonArray getQcRoles( X509Certificate cert ) throws Exception {
 		
-		List<String> typesList = null;
-		String typesJson = null;
+		JsonArray typesList = null;
 		
 		byte[] extv = cert.getExtensionValue(Extension.qCStatements.getId());
 		ASN1OctetString akiOc = ASN1OctetString.getInstance(extv);
@@ -426,7 +425,7 @@ public class EiDASCertificate {
 
 			if (oid_etsi_qcs_QcType.getId().equals(qcStatement.getStatementId().getId())) {
 
-				typesList = new ArrayList<String>();
+				typesList = new JsonArray();
 				
 				ASN1Encodable statementInfo = qcStatement.getStatementInfo();
 	
@@ -437,16 +436,13 @@ public class EiDASCertificate {
 	
 					ASN1ObjectIdentifier oid = ASN1ObjectIdentifier.getInstance( types.getObjectAt(t) );
 	
-					typesList.add( qcTypesNames.get( oid ) );
+					typesList.add( new JsonPrimitive( qcTypesNames.get( oid ) ) );
 				}
-				
-				typesJson = "[" + typesList.stream().map(t -> "\"" + t + "\"").reduce((ts, t) -> ts + "," + t).get() + "]"; 
-				
 			}
 		}
 		// }catch(){}
 		
-		return typesJson;
+		return typesList;
 	}
 	
 	private Map<String,Object> getNcaAndRolesOfPSP( X509Certificate cert ) throws Exception {
