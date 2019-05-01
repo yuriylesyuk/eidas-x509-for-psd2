@@ -456,4 +456,79 @@ public class EiDASCertificateParserCalloutTest {
 				messageContext.getVariable("context.certificate")
 		);
 	}
+	
+	
+
+	
+	@Test
+	public void parseCertificateWithNoPSD2() {
+
+		messageContext.setVariable("request.header.SSL_CLIENT_CERT",
+				// cert with qctypes
+				"-----BEGIN CERTIFICATE-----\n" + 
+				"MIIDmjCCAoKgAwIBAgIBCTANBgkqhkiG9w0BAQUFADAVMRMwEQYDVQQDDAo4Z3dp\n" + 
+				"Zmkub3JnMB4XDTE5MDQzMDE0MTgzNloXDTE5MDUxNDA4MDUxMFowbTELMAkGA1UE\n" + 
+				"BhMCQVMxDjAMBgNVBAgTBWRzZGFzMQ4wDAYDVQQHEwVhc2RhczEOMAwGA1UEChMF\n" + 
+				"YXNkYXMxDDAKBgNVBAsTA2FkczEMMAoGA1UEAxMDYXNkMRIwEAYJKoZIhvcNAQkB\n" + 
+				"FgNhc2QwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDSLn8SAW1bntdP\n" + 
+				"qbZiyvYMuPfsPDT/uXVzTzUMkdAOdr+u7gPyYcS7JxRXjhDnYQRY0cjlEdg1gNN4\n" + 
+				"e8yl6FIX7HgHozxvDTKsS3PKDy9H05swatGfaT9VfcxIzhF6l5yCbGazf1DSXGW/\n" + 
+				"J3o5w1OHxeclfBEW3byCbetsmdBTVFWQ0G0yiKI8lUpv8wCqtQARWtOV6RVz7Av2\n" + 
+				"fENE7PNiKfDFbnNIzIBjP/t+G60TefAgKN0Aosy9jPiApvidFkGvO5M/cLYc7SWV\n" + 
+				"MHfyZ6kb/K76tUWO49d4aO5NUBg8z1BbjkvU46+yubw5/YNC9y2LnXwS47RuarAS\n" + 
+				"wx78sn2rAgMBAAGjgZwwgZkwPAYDVR0jBDUwM4AUIf0b/ctfAz5BuLqFaVqMki7j\n" + 
+				"SbShFaQTMBExDzANBgNVBAMMBnJvb3RDQYIEnNMcnTAdBgNVHQ4EFgQUALiYaqHw\n" + 
+				"+Q8OlofG4RkrUKpkXKMwEgYDVR0TAQH/BAgwBgEB/wIBADAOBgNVHQ8BAf8EBAMC\n" + 
+				"BaAwFgYDVR0lAQH/BAwwCgYIKwYBBQUHAwEwDQYJKoZIhvcNAQEFBQADggEBAHuU\n" + 
+				"2xGEUWhljovS8XmCDzKlIfwvoZSpFyYCUZcY8j89S9O2QBvhcJvdk1NbWJQ0Ccso\n" + 
+				"MImgqkiqiwrVf/5iq38rc6gCm/IPyTJwkEIxu7xKZ/AR2ltXYQK07yEdK5gy84m3\n" + 
+				"zPe4TIIetGuL/y+xmjtX0KKZTb0NsZpGCKofyKc1kAPuXoRS6g45E/QEc19B2Ek7\n" + 
+				"ikqjnMgsrMJSsvws42fcgtjCERVD4LZd9GY8EsRYZnyB1AWodf2hDxRHaeTkfqYT\n" + 
+				"UdB/2hYyOu9lMCWAA0pSzTViTjCt0ZJlwu10ygpJsdej69Zut4TkUpDiSe6EIxVH\n" + 
+				"w6l0WRArO1HWbkQ6aP8=\n" + 
+				"-----END CERTIFICATE-----"
+				);
+
+		Map<String, String> properties = new HashMap<String, String>();
+		
+		properties.put("operation", "show");
+
+		properties.put("certificate-pem", "request.header.SSL_CLIENT_CERT");
+		properties.put("certificate-info", "context.certinfo");
+
+		EiDASCertificateParserCallout callout = new EiDASCertificateParserCallout(properties);
+
+		callout.execute(messageContext, executionContext);
+
+		assertEquals(
+				"{\n" + 
+				"  \"certInfo\": {\n" + 
+				"    \"basicConstraints\": \"CA: true\",\n" + 
+				"    \"subject\": \"E=asd, CN=asd, OU=ads, O=asdas, L=asdas, ST=dsdas, C=AS\",\n" + 
+				"    \"issuer\": \"CN=8gwifi.org\",\n" + 
+				"    \"validFrom\": 1557821110000,\n" + 
+				"    \"expiryDate\": 1557821110000,\n" + 
+				"    \"isValid\": \"<TODO>\",\n" + 
+				"    \"publicKey\": \"RSA, 2048\",\n" + 
+				"    \"serialNumber\": 9,\n" + 
+				"    \"sigAlgName\": \"SHA1withRSA\",\n" + 
+				"    \"version\": 3,\n" + 
+				"    \"fingerprintSha256\": \"6c3b55a6ac47aa2170a46acdddb91641035f41f95c3a5dee8c534c356d18cd61\",\n" + 
+				"    \"fingerprintSha1\": \"b9bf34f0ca064271d89153cb2e454513258c8d8a\",\n" + 
+				"    \"keyUsage\": [\n" + 
+				"      \"digitalSignature\",\n" + 
+				"      \"keyEncipherment\"\n" + 
+				"    ],\n" + 
+				"    \"extKeyUsage\": [\n" + 
+				"      \"serverAuth\"\n" + 
+				"    ]\n" + 
+				"  }\n" + 
+				"}"
+				, messageContext.getVariable("context.certinfo")
+		);
+	}
+
+	
 }
+
+

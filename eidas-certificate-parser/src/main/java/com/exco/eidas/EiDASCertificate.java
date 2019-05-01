@@ -412,7 +412,11 @@ public class EiDASCertificate {
 		
 		JsonArray typesList = null;
 		
-		byte[] extv = cert.getExtensionValue(Extension.qCStatements.getId());
+		byte[] extv = cert.getExtensionValue( Extension.qCStatements.getId() );
+		if( extv == null ){
+			return null;
+		}
+		
 		ASN1OctetString akiOc = ASN1OctetString.getInstance(extv);
 
 		ASN1Sequence qcStatements;
@@ -451,6 +455,10 @@ public class EiDASCertificate {
 		
 
 		byte[] extv = cert.getExtensionValue(Extension.qCStatements.getId());
+		if( extv == null ) {
+			return null;
+		}
+		
 		ASN1OctetString akiOc = ASN1OctetString.getInstance(extv);
 
 		ASN1Sequence qcStatements = null;;
