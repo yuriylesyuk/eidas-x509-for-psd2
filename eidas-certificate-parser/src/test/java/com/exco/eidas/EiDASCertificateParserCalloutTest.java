@@ -94,7 +94,7 @@ public class EiDASCertificateParserCalloutTest {
 	@Test
 	public void parsePsd2Certificate() {
 
-		messageContext.setVariable("request.header.SSL_CLIENT_CERT",
+		messageContext.setVariable("request.header.SSL-CLIENT-CERT",
 				// cert with no type				
 				"-----BEGIN CERTIFICATE-----\\n"
 				+ "MIIECDCCAvCgAwIBAgIEb8KUejANBgkqhkiG9w0BAQsFADCBlDELMAkGA1UEBhMC"
@@ -127,7 +127,7 @@ public class EiDASCertificateParserCalloutTest {
 		
 		properties.put("operation", "show");
 
-		properties.put("certificate-pem", "request.header.SSL_CLIENT_CERT");
+		properties.put("certificate-pem", "request.header.SSL-CLIENT-CERT");
 		properties.put("certificate-info", "context.certinfo");
 
 		EiDASCertificateParserCallout callout = new EiDASCertificateParserCallout(properties);
@@ -171,7 +171,7 @@ public class EiDASCertificateParserCalloutTest {
 	@Test
 	public void parsePsd2CertificateWithQcTypesAndPSD2Roles() {
 
-		messageContext.setVariable("request.header.SSL_CLIENT_CERT",
+		messageContext.setVariable("request.header.SSL-CLIENT-CERT",
 				// cert with qctypes
 				"-----BEGIN CERTIFICATE-----\n" + 
 				"MIIEHjCCAwagAwIBAgIEb8KUejANBgkqhkiG9w0BAQUFADBsMQswCQYDVQQGEwJV\n" + 
@@ -205,7 +205,7 @@ public class EiDASCertificateParserCalloutTest {
 		
 		properties.put("operation", "show");
 
-		properties.put("certificate-pem", "request.header.SSL_CLIENT_CERT");
+		properties.put("certificate-pem", "request.header.SSL-CLIENT-CERT");
 		properties.put("certificate-info", "context.certinfo");
 
 		EiDASCertificateParserCallout callout = new EiDASCertificateParserCallout(properties);
@@ -247,7 +247,7 @@ public class EiDASCertificateParserCalloutTest {
 	@Test
 	public void parsePsd2CertificateWithKEandEKUandQcTypesAndPSD2Roles() {
 
-		messageContext.setVariable("request.header.SSL_CLIENT_CERT",
+		messageContext.setVariable("request.header.SSL-CLIENT-CERT",
 				// cert with qctypes
 				"-----BEGIN CERTIFICATE-----\n" + 
 				"MIIEMjCCAxqgAwIBAgIEb8KUejANBgkqhkiG9w0BAQUFADBsMQswCQYDVQQGEwJV\n" + 
@@ -281,7 +281,7 @@ public class EiDASCertificateParserCalloutTest {
 		
 		properties.put("operation", "show");
 
-		properties.put("certificate-pem", "request.header.SSL_CLIENT_CERT");
+		properties.put("certificate-pem", "request.header.SSL-CLIENT-CERT");
 		properties.put("certificate-info", "context.certinfo");
 
 		EiDASCertificateParserCallout callout = new EiDASCertificateParserCallout(properties);
@@ -463,7 +463,7 @@ public class EiDASCertificateParserCalloutTest {
 	@Test
 	public void parseCertificateWithNoPSD2() {
 
-		messageContext.setVariable("request.header.SSL_CLIENT_CERT",
+		messageContext.setVariable("request.header.SSL-CLIENT-CERT",
 				// cert with qctypes
 				"-----BEGIN CERTIFICATE-----\n" + 
 				"MIIDmjCCAoKgAwIBAgIBCTANBgkqhkiG9w0BAQUFADAVMRMwEQYDVQQDDAo4Z3dp\n" + 
@@ -493,7 +493,7 @@ public class EiDASCertificateParserCalloutTest {
 		
 		properties.put("operation", "show");
 
-		properties.put("certificate-pem", "request.header.SSL_CLIENT_CERT");
+		properties.put("certificate-pem", "request.header.SSL-CLIENT-CERT");
 		properties.put("certificate-info", "context.certinfo");
 
 		EiDASCertificateParserCallout callout = new EiDASCertificateParserCallout(properties);
