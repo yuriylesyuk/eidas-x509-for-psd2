@@ -5,7 +5,7 @@
     <Properties>
         <Property name="operation">show</Property>
         <Property name="certificate-info">flow.certinfo</Property>
-        <Property name="certificate-pem">request.header.SSL_CLIENT_CERT</Property>
+        <Property name="certificate-pem">request.header.SSL-CLIENT-CERT</Property>
     </Properties>
     <ClassName>com.exco.eidas.EiDASCertificateParserCallout</ClassName>
     <ResourceURL>java://eidas-certificate-parser-1.0.0.jar</ResourceURL>
