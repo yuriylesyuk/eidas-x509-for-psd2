@@ -321,7 +321,7 @@ public class EiDASCertificate {
 				
 		certAttributes.addProperty("issuer", cert.getIssuerDN().toString());
 
-		certAttributes.addProperty("validFrom", expiryDate.getTime());
+		certAttributes.addProperty("validFrom", validFromDate.getTime());
 		certAttributes.addProperty("expiryDate", expiryDate.getTime());
 		certAttributes.addProperty("isValid", "<TODO>");
 

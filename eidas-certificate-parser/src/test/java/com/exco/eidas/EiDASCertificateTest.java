@@ -226,7 +226,7 @@ public class EiDASCertificateTest {
 			"    \"subject\": \"OID.2.5.4.97\\u003d12345987, L\\u003dNuremberg, ST\\u003dBayern, C\\u003dGermany, OU\\u003dou, O\\u003dorg, CN\\u003ddomainName\"," + 
 			"    \"issuer\": \"EMAILADDRESS\\u003dca@test.de, CN\\u003dAuthority CA Domain Name, OU\\u003dIT, O\\u003dAuthority CA, L\\u003dFrankfurt, ST\\u003dHessen, C\\u003dDE\"," + 
 			"    \"validFrom\": 1543573407000," + 
-			"    \"expiryDate\": 1543573407000," + 
+			"    \"expiryDate\": 1559740306000," + 
 			"    \"isValid\": \"\\u003cTODO\\u003e\"," + 
 			"    \"publicKey\": \"RSA, 2048\"," + 
 			"    \"serialNumber\": 1875022970," + 
@@ -419,7 +419,7 @@ assertEquals(keyPem, "-----BEGIN RSA PRIVATE KEY-----\n" +
 			"    \"subject\": \"OID.2.5.4.97\\u003d12345987, L\\u003dNuremberg, ST\\u003dBayern, C\\u003dGermany, OU\\u003dou, O\\u003dorg, CN\\u003ddomainName\"," + 
 			"    \"issuer\": \"EMAILADDRESS\\u003dca@test.de, CN\\u003dAuthority CA Domain Name, OU\\u003dIT, O\\u003dAuthority CA, L\\u003dFrankfurt, ST\\u003dHessen, C\\u003dDE\"," + 
 			"    \"validFrom\": 1543573407000," + 
-			"    \"expiryDate\": 1543573407000," + 
+			"    \"expiryDate\": 1559740306000," + 
 			"    \"isValid\": \"\\u003cTODO\\u003e\"," + 
 			"    \"publicKey\": \"RSA, 2048\"," + 
 			"    \"serialNumber\": 1875022970," + 
@@ -477,7 +477,7 @@ assertEquals(keyPem, "-----BEGIN RSA PRIVATE KEY-----\n" +
 			"    \"subject\": \"OID.2.5.4.97\\u003d12345987, L\\u003dNuremberg, ST\\u003dBayern, C\\u003dGermany, OU\\u003dou, O\\u003dorg, CN\\u003ddomainName\"," + 
 			"    \"issuer\": \"EMAILADDRESS\\u003dca@test.de, CN\\u003dAuthority CA Domain Name, OU\\u003dIT, O\\u003dAuthority CA, L\\u003dFrankfurt, ST\\u003dHessen, C\\u003dDE\"," + 
 			"    \"validFrom\": 1543573407000," + 
-			"    \"expiryDate\": 1543573407000," + 
+			"    \"expiryDate\": 1559740306000," + 
 			"    \"isValid\": \"\\u003cTODO\\u003e\"," + 
 			"    \"publicKey\": \"RSA, 2048\"," + 
 			"    \"serialNumber\": 1875022970," + 

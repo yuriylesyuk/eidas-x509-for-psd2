@@ -143,7 +143,7 @@ public class EiDASCertificateParserCalloutTest {
 				"    \"basicConstraints\": \"CA: false\",\n" + 
 				"    \"subject\": \"organizationIdentifier=12345987, L=Nuremberg, ST=Bayern, C=Germany, OU=ou, O=org, CN=domainName\",\n" + 
 				"    \"issuer\": \"EMAILADDRESS=ca@test.de, CN=Authority CA Domain Name, OU=IT, O=Authority CA, L=Frankfurt, ST=Hessen, C=DE\",\n" + 
-				"    \"validFrom\": 1543573407000,\n" + 
+				"    \"validFrom\": 1542102178000,\n" + 
 				"    \"expiryDate\": 1543573407000,\n" + 
 				"    \"isValid\": \"<TODO>\",\n" + 
 				"    \"publicKey\": \"RSA, 2048\",\n" + 
@@ -218,7 +218,7 @@ public class EiDASCertificateParserCalloutTest {
 				"    \"basicConstraints\": \"CA: true\",\n" + 
 				"    \"subject\": \"organizationIdentifier=PSDES-BDE-3DFD21, C=DE, ST=Hessen, L=Frankfurt, O=Authority CA, OU=IT, CN=Authority CA Domain Name, E=ca@test.de\",\n" + 
 				"    \"issuer\": \"CN=Exco-Interm-CA, OU=CA Services/Interm Desk, O=Exco PLC, L=London, C=UK\",\n" + 
-				"    \"validFrom\": 1559740306000,\n" + 
+				"    \"validFrom\": 1543573407000,\n" + 
 				"    \"expiryDate\": 1559740306000,\n" + 
 				"    \"isValid\": \"<TODO>\",\n" + 
 				"    \"publicKey\": \"RSA, 2048\",\n" + 
@@ -294,7 +294,7 @@ public class EiDASCertificateParserCalloutTest {
 				"    \"basicConstraints\": \"CA: true\",\n" + 
 				"    \"subject\": \"organizationIdentifier=PSDES-BDE-3DFD21, C=DE, ST=Hessen, L=Frankfurt, O=Authority CA, OU=IT, CN=Authority CA Domain Name, E=ca@test.de\",\n" + 
 				"    \"issuer\": \"CN=Exco-Interm-CA, OU=CA Services/Interm Desk, O=Exco PLC, L=London, C=UK\",\n" + 
-				"    \"validFrom\": 1559740306000,\n" + 
+				"    \"validFrom\": 1543573407000,\n" + 
 				"    \"expiryDate\": 1559740306000,\n" + 
 				"    \"isValid\": \"<TODO>\",\n" + 
 				"    \"publicKey\": \"RSA, 2048\",\n" + 
@@ -506,7 +506,7 @@ public class EiDASCertificateParserCalloutTest {
 				"    \"basicConstraints\": \"CA: true\",\n" + 
 				"    \"subject\": \"E=asd, CN=asd, OU=ads, O=asdas, L=asdas, ST=dsdas, C=AS\",\n" + 
 				"    \"issuer\": \"CN=8gwifi.org\",\n" + 
-				"    \"validFrom\": 1557821110000,\n" + 
+				"    \"validFrom\": 1556633916000,\n" + 
 				"    \"expiryDate\": 1557821110000,\n" + 
 				"    \"isValid\": \"<TODO>\",\n" + 
 				"    \"publicKey\": \"RSA, 2048\",\n" + 
