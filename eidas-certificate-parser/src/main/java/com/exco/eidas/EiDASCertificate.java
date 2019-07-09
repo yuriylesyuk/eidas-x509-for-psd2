@@ -327,7 +327,7 @@ public class EiDASCertificate {
 
 		certAttributes.addProperty("publicKey", getPkDescription(cert.getPublicKey()));
 
-		certAttributes.addProperty("serialNumber", cert.getSerialNumber());
+		certAttributes.addProperty("serialNumber", cert.getSerialNumber().toString(16) );
 
 		certAttributes.addProperty("sigAlgName", cert.getSigAlgName());
 
@@ -864,7 +864,7 @@ public class EiDASCertificate {
 		long notBefore = certinfo.get("validFrom").getAsLong() / 1000L;;
 		long notAfter = certinfo.get("expiryDate").getAsLong() / 1000L;;
 
-		BigInteger serialNumber = certinfo.get("serialNumber").getAsBigInteger();
+		BigInteger serialNumber = new BigInteger( certinfo.get("serialNumber").getAsString(), 16);
 		/// C&P section: EOS
 		
 	
@@ -1191,7 +1191,7 @@ public class EiDASCertificate {
 		long notBefore = certinfo.get("validFrom").getAsLong() / 1000L;;
 		long notAfter = certinfo.get("expiryDate").getAsLong() / 1000L;;
 
-		BigInteger serialNumber = certinfo.get("serialNumber").getAsBigInteger();
+		BigInteger serialNumber = new BigInteger( certinfo.get("serialNumber").getAsString(), 16);
 		
 		
 		JcaX509v3CertificateBuilder certbuilder = new JcaX509v3CertificateBuilder(

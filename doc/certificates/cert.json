@@ -6,7 +6,7 @@
     "validFrom": 1543573407000,
     "expiryDate": 1543573407000,
     "publicKey": "RSA, 2048",
-    "serialNumber": 1875022970,
+    "serialNumber": "6fc2947a",
     "ncaName": "ncaname",
     "ncaId": "ncaid",
     "rolesOfPSP": ["PSP_AS","PSP_PI"]

@@ -229,7 +229,7 @@ public class EiDASCertificateTest {
 			"    \"expiryDate\": 1559740306000," + 
 			"    \"isValid\": \"\\u003cTODO\\u003e\"," + 
 			"    \"publicKey\": \"RSA, 2048\"," + 
-			"    \"serialNumber\": 1875022970," + 
+			"    \"serialNumber\": \"6fc2947a\"," + 
 			"    \"sigAlgName\": \"SHA1withRSA\"," + 
 			"    \"version\": 3," + 
 			"    \"fingerprintSha256\": \"8345ed6b67056bb641e6ccac5a0579acdf80663de59f7b92f561b66bb6d8876b\"," + 
@@ -422,7 +422,7 @@ assertEquals(keyPem, "-----BEGIN RSA PRIVATE KEY-----\n" +
 			"    \"expiryDate\": 1559740306000," + 
 			"    \"isValid\": \"\\u003cTODO\\u003e\"," + 
 			"    \"publicKey\": \"RSA, 2048\"," + 
-			"    \"serialNumber\": 1875022970," + 
+			"    \"serialNumber\": \"6fc2947a\"," + 
 			"    \"sigAlgName\": \"SHA1withRSA\"," + 
 			"    \"version\": 3," + 
 			"    \"fingerprintSha256\": \"8345ed6b67056bb641e6ccac5a0579acdf80663de59f7b92f561b66bb6d8876b\"," + 
@@ -480,7 +480,7 @@ assertEquals(keyPem, "-----BEGIN RSA PRIVATE KEY-----\n" +
 			"    \"expiryDate\": 1559740306000," + 
 			"    \"isValid\": \"\\u003cTODO\\u003e\"," + 
 			"    \"publicKey\": \"RSA, 2048\"," + 
-			"    \"serialNumber\": 1875022970," + 
+			"    \"serialNumber\": \"6fc2947a\"," + 
 			"    \"sigAlgName\": \"SHA1withRSA\"," + 
 			"    \"version\": 3," + 
 			"    \"keyUsage\": [\"digitalSignature\",\"keyCertSign\"]," + 
@@ -540,7 +540,7 @@ assertEquals(keyPem, "-----BEGIN RSA PRIVATE KEY-----\n" +
 			"    \"expiryDate\": 1559740306000," + 
 			"    \"isValid\": \"\\u003cTODO\\u003e\"," + 
 			"    \"publicKey\": \"RSA, 2048\"," + 
-			"    \"serialNumber\": 1875022970," + 
+			"    \"serialNumber\": \"6fc2947a\"," + 
 			"    \"sigAlgName\": \"SHA1withRSA\"," + 
 			"    \"version\": 3," + 
 			"    \"fingerprintSha256\": \"8345ed6b67056bb641e6ccac5a0579acdf80663de59f7b92f561b66bb6d8876b\"," + 
@@ -677,7 +677,7 @@ assertEquals(keyPem, "-----BEGIN RSA PRIVATE KEY-----\n" +
 			"    \"expiryDate\": 1559740306000," + 
 			"    \"isValid\": \"\\u003cTODO\\u003e\"," + 
 			"    \"publicKey\": \"RSA, 2048\"," + 
-			"    \"serialNumber\": 1875022970," + 
+			"    \"serialNumber\": \"6fc2947a\"," + 
 			"    \"sigAlgName\": \"SHA1withRSA\"," + 
 			"    \"version\": 3," + 
 			"    \"keyUsage\": [\"digitalSignature\",\"keyCertSign\"]," + 
@@ -816,7 +816,7 @@ assertEquals(keyPem, "-----BEGIN RSA PRIVATE KEY-----\n" +
 			"    \"expiryDate\": 1559740306000," + 
 			"    \"isValid\": \"\\u003cTODO\\u003e\"," + 
 			"    \"publicKey\": \"RSA, 2048\"," + 
-			"    \"serialNumber\": 1875022970," + 
+			"    \"serialNumber\": \"6fc2947a\"," + 
 			"    \"sigAlgName\": \"SHA1withRSA\"," + 
 			"	 \"aia\": {\n" + 
 			"	     \"caIssuers\": \"http://www.exco.com/ca.cer\",\n" + 

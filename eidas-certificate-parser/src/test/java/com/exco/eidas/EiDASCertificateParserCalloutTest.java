@@ -147,7 +147,7 @@ public class EiDASCertificateParserCalloutTest {
 				"    \"expiryDate\": 1543573407000,\n" + 
 				"    \"isValid\": \"<TODO>\",\n" + 
 				"    \"publicKey\": \"RSA, 2048\",\n" + 
-				"    \"serialNumber\": 1875022970,\n" + 
+				"    \"serialNumber\": \"6fc2947a\",\n" + 
 				"    \"sigAlgName\": \"SHA256withRSA\",\n" + 
 				"    \"version\": 3,\n" + 
 				"    \"fingerprintSha256\": \"8519974939ccb1d2880bd8d635beffb7e0725fbc7d3af4ef2b8e9df88deeae7b\",\n" + 
@@ -222,7 +222,7 @@ public class EiDASCertificateParserCalloutTest {
 				"    \"expiryDate\": 1559740306000,\n" + 
 				"    \"isValid\": \"<TODO>\",\n" + 
 				"    \"publicKey\": \"RSA, 2048\",\n" + 
-				"    \"serialNumber\": 1875022970,\n" + 
+				"    \"serialNumber\": \"6fc2947a\",\n" + 
 				"    \"sigAlgName\": \"SHA1withRSA\",\n" + 
 				"    \"version\": 3,\n" + 
 				"    \"fingerprintSha256\": \"357c4c53c3aa567b4c19346e2570aaf004ed9362f4bd28c8d5232da319ac9776\",\n" + 
@@ -298,7 +298,7 @@ public class EiDASCertificateParserCalloutTest {
 				"    \"expiryDate\": 1559740306000,\n" + 
 				"    \"isValid\": \"<TODO>\",\n" + 
 				"    \"publicKey\": \"RSA, 2048\",\n" + 
-				"    \"serialNumber\": 1875022970,\n" + 
+				"    \"serialNumber\": \"6fc2947a\",\n" + 
 				"    \"sigAlgName\": \"SHA1withRSA\",\n" + 
 				"    \"version\": 3,\n" + 
 				"    \"fingerprintSha256\": \"3f66843bf6e114e83c004055f0c51b826b0518e17f43fea8c010657849ea864f\",\n" + 
@@ -337,7 +337,7 @@ public class EiDASCertificateParserCalloutTest {
 				"    \"expiryDate\": 1559740306000," + 
 				"    \"isValid\": \"\\u003cTODO\\u003e\"," + 
 				"    \"publicKey\": \"RSA, 2048\"," + 
-				"    \"serialNumber\": 1875022970," + 
+				"    \"serialNumber\": \"6fc2947a\"," + 
 				"    \"sigAlgName\": \"SHA1withRSA\"," + 
 				"    \"version\": 3," + 
 				"    \"fingerprintSha256\": \"8345ed6b67056bb641e6ccac5a0579acdf80663de59f7b92f561b66bb6d8876b\"," + 
@@ -510,7 +510,7 @@ public class EiDASCertificateParserCalloutTest {
 				"    \"expiryDate\": 1557821110000,\n" + 
 				"    \"isValid\": \"<TODO>\",\n" + 
 				"    \"publicKey\": \"RSA, 2048\",\n" + 
-				"    \"serialNumber\": 9,\n" + 
+				"    \"serialNumber\": \"9\",\n" + 
 				"    \"sigAlgName\": \"SHA1withRSA\",\n" + 
 				"    \"version\": 3,\n" + 
 				"    \"fingerprintSha256\": \"6c3b55a6ac47aa2170a46acdddb91641035f41f95c3a5dee8c534c356d18cd61\",\n" + 
