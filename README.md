@@ -2,6 +2,12 @@
 
 The proxy bundle is ready for deployment. You don't need to compile it in order to use it.
 
+
+## 
+TODO: [ ] Refactor packaging, http://auralbits.blogspot.com/2010/10/automating-java-application-packaging.html
+TODO: [ ] Automate ant script invocation
+TODO: [ ] Add Apickly test
+
 ## Quickstart: Building and deploying
 
 
