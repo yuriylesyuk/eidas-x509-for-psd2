@@ -561,6 +561,7 @@ public class EiDASCertificate {
 
 	protected KeyPair getKeyPair( String pemRSAPrivateKey, String password) {
 		
+		Security.addProvider(new BouncyCastleProvider());
 		
 		BufferedReader br = new BufferedReader( new InputStreamReader( new ByteArrayInputStream( pemRSAPrivateKey.getBytes() ) ) );
 		
