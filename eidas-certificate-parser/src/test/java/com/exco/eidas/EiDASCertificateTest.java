@@ -1,8 +1,6 @@
 package com.exco.eidas;
 
-import static org.junit.Assert.assertEquals;
-
-import java.io.IOException;
+import java.io.*;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
@@ -11,16 +9,17 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Security;
 import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x509.KeyPurposeId;
 import org.bouncycastle.asn1.x509.KeyUsage;
@@ -30,11 +29,12 @@ import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import sun.security.provider.X509Factory;
+
+import static org.junit.Assert.*;
 
 public class EiDASCertificateTest {
 
@@ -1016,6 +1016,49 @@ assertEquals(keyPem, "-----BEGIN RSA PRIVATE KEY-----\n" +
 		
 		assertEquals( kps, kpsoids );
 		
+	}
+
+	@Test
+	public void testParseCertificateWithoutSAN() {
+		String fileWithNoSAN = "no-san-cert.pem";
+		X509Certificate certWithoutSAN = loadCertificate(fileWithNoSAN);
+		EiDASCertificate eiDASCertificate = new EiDASCertificate();
+		String pemJson = eiDASCertificate.showPemAsJSON(certWithoutSAN);
+		JsonObject jsonObject = (new JsonParser()).parse( pemJson ).getAsJsonObject().getAsJsonObject("certInfo");
+		JsonArray sanArray = jsonObject.getAsJsonArray("subjectAlternativeNames");
+		assertNull(sanArray);
+		System.out.println(pemJson);
+	}
+
+	@Test
+	public void testParseCertificateWithSAN() {
+		String fileWithSAN = "san-cert.pem";
+		X509Certificate certWithSAN = loadCertificate(fileWithSAN);
+		EiDASCertificate eiDASCertificate = new EiDASCertificate();
+		String pemJson = eiDASCertificate.showPemAsJSON(certWithSAN);
+		JsonObject jsonObject = (new JsonParser()).parse( pemJson ).getAsJsonObject().getAsJsonObject("certInfo");
+		JsonArray sanArray = jsonObject.getAsJsonArray("subjectAlternativeNames");
+		assertNotNull(sanArray);
+		assertNotEquals(sanArray.size(), 0);
+		System.out.println(pemJson);
+	}
+
+
+	private X509Certificate loadCertificate(String fileName) {
+		String certString;
+		try{
+			String filePath = getClass().getClassLoader().getResource(fileName).getFile();
+			StringBuilder sb = new StringBuilder();
+			BufferedReader reader = new BufferedReader(new FileReader(filePath));
+			reader.lines().forEach(sb::append);
+			certString = sb.toString();
+			byte [] decoded = Base64.getDecoder().decode(certString.replaceAll(X509Factory.BEGIN_CERT, "").replaceAll(X509Factory.END_CERT, ""));
+			return (X509Certificate) CertificateFactory.getInstance("X.509").generateCertificate(new ByteArrayInputStream(decoded));
+		}
+		catch (Exception e){
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		}
 	}
 	
 }

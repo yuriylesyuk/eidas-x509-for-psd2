@@ -17,6 +17,7 @@ import java.security.PublicKey;
 import java.security.Security;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
+import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.DSAPublicKey;
 import java.security.interfaces.ECPublicKey;
@@ -25,13 +26,7 @@ import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPublicKeySpec;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -332,6 +327,25 @@ public class EiDASCertificate {
 		certAttributes.addProperty("sigAlgName", cert.getSigAlgName());
 
 		certAttributes.addProperty("version", cert.getVersion());
+
+		/* Add Subject Alternative Name to output object. At this point, the only certificates tested
+		 * were those with a DNS Names as a key, which is identified by key == 2. This addition adds only
+		 * those cases.
+ 		 */
+		try{
+			JsonArray sanAddresses = new JsonArray();
+			if(cert.getSubjectAlternativeNames() != null) {
+				Collection<List<?>> sans = cert.getSubjectAlternativeNames();
+				sans.forEach((san) -> {
+					if((Integer)san.get(0) == 2 && san.get(1) != null) {
+						sanAddresses.add(new JsonPrimitive((String)san.get(1)));
+					}
+				});
+				certAttributes.add("subjectAlternativeNames", sanAddresses);
+			}
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 
 		JsonObject certObject = new JsonObject();
 		certObject.add("certInfo", certAttributes);
