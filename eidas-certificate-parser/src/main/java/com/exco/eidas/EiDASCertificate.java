@@ -323,7 +323,9 @@ public class EiDASCertificate {
 
 		certAttributes.addProperty("validFrom", validFromDate.getTime());
 		certAttributes.addProperty("expiryDate", expiryDate.getTime());
-		certAttributes.addProperty("isValid", "<TODO>");
+
+		boolean isValid = (validFromDate.before(now) && expiryDate.after(now));
+		certAttributes.addProperty("isValid", isValid);
 
 		certAttributes.addProperty("publicKey", getPkDescription(cert.getPublicKey()));
 
